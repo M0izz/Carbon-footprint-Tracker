@@ -1976,224 +1976,199 @@ function updateDashboardEquivalencies(totalFootprint) {
 
 function exportCarbonPassport() {
   const canvas = document.createElement('canvas');
-  canvas.width = 450;
-  canvas.height = 550;
+  canvas.width = 560;
+  canvas.height = 315;
   const ctx = canvas.getContext('2d');
 
-  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  // Fill pure black background with rounded corners
+  ctx.fillStyle = '#0a0a0a';
   
-  ctx.fillStyle = isDark ? '#08090a' : '#f5f7f8';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
-  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)';
-  ctx.lineWidth = 1;
-  const gridSize = 15;
-  for (let x = 0; x < canvas.width; x += gridSize) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, canvas.height);
-    ctx.stroke();
-  }
-  for (let y = 0; y < canvas.height; y += gridSize) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(canvas.width, y);
-    ctx.stroke();
-  }
-
-  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
-  
-  ctx.strokeStyle = isDark ? '#ffffff' : '#000000';
-  ctx.lineWidth = 3;
-  const bracketSize = 15;
-  const coords = [
-    [10, 10, 1, 1],
-    [canvas.width - 10, 10, -1, 1],
-    [10, canvas.height - 10, 1, -1],
-    [canvas.width - 10, canvas.height - 10, -1, -1]
-  ];
-  coords.forEach(([x, y, dx, dy]) => {
-    ctx.beginPath();
-    ctx.moveTo(x + dx * bracketSize, y);
-    ctx.lineTo(x, y);
-    ctx.lineTo(x, y + dy * bracketSize);
-    ctx.stroke();
-  });
-
-  ctx.fillStyle = isDark ? '#ffffff' : '#000000';
-  ctx.font = 'bold 16px monospace';
-  ctx.fillText('ECOSPHERE // SYSTEM DIAGNOSTIC', 30, 45);
-  
-  ctx.font = '10px monospace';
-  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)';
-  ctx.fillText('PASSPORT STATUS: ACTIVE SYSTEM', 30, 60);
-  
-  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-  ctx.lineWidth = 1;
+  // Custom rounded rectangle path
+  const radius = 14;
   ctx.beginPath();
-  ctx.moveTo(30, 75);
-  ctx.lineTo(canvas.width - 30, 75);
-  ctx.stroke();
-  
-  ctx.fillStyle = isDark ? '#ffffff' : '#000000';
-  ctx.font = '11px monospace';
-  ctx.fillText(`CITIZEN IDENTIFIER: CLIMATE CITIZEN`, 30, 105);
-  ctx.fillText(`ISSUED: ${new Date().toLocaleDateString().toUpperCase()}`, 30, 120);
-  
-  ctx.font = 'bold 64px sans-serif';
-  ctx.fillStyle = isDark ? '#ffffff' : '#000000';
-  const scoreText = state.footprint.total.toFixed(1);
-  ctx.fillText(scoreText, 30, 195);
-  
-  ctx.font = '12px monospace';
-  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)';
-  ctx.fillText('METRIC TONS CO2e / YEAR', 30, 215);
+  ctx.moveTo(radius, 0);
+  ctx.lineTo(canvas.width - radius, 0);
+  ctx.quadraticCurveTo(canvas.width, 0, canvas.width, radius);
+  ctx.lineTo(canvas.width, canvas.height - radius);
+  ctx.quadraticCurveTo(canvas.width, canvas.height, canvas.width - radius, canvas.height);
+  ctx.lineTo(radius, canvas.height);
+  ctx.quadraticCurveTo(0, canvas.height, 0, canvas.height - radius);
+  ctx.lineTo(0, radius);
+  ctx.quadraticCurveTo(0, 0, radius, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.clip(); // Clip everything else inside the rounded boundary
 
-  // Draw premium visual emblem (Eco-Leaf grid watermark/stamp)
-  drawMiniEcoLeaf(ctx, 320, 150, 120, isDark);
-  
-  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(30, 240);
-  ctx.lineTo(canvas.width - 30, 240);
-  ctx.stroke();
-  
+  // Draw Dot Grid Texture in the Top Right
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+  const dotCols = 10;
+  const dotRows = 7;
+  const spacingX = 14;
+  const spacingY = 14;
+  const startGridX = 380;
+  const startGridY = 48;
+  for (let col = 0; col < dotCols; col++) {
+    for (let row = 0; row < dotRows; row++) {
+      ctx.beginPath();
+      ctx.arc(startGridX + col * spacingX, startGridY + row * spacingY, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Set default text alignment
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+
+  // 1. Top Header Line
+  ctx.font = '9px monospace';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.fillText('ECOSPHERE  |  CLIMATE INTELLIGENCE PLATFORM', 25, 36);
+
+  // Issued date aligned right
+  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  const d = new Date();
+  const dateStr = `• ISSUED ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  ctx.textAlign = 'right';
+  ctx.fillText(dateStr, canvas.width - 25, 36);
+
+  // 2. Title Section (Top Left)
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 12px monospace';
-  ctx.fillStyle = isDark ? '#ffffff' : '#000000';
-  ctx.fillText('SECTOR METRIC BREAKDOWN:', 30, 270);
+  ctx.fillText('CLIMATE PASSPORT', 25, 68);
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.font = '9px monospace';
+  ctx.fillText('CLIMATE CITIZEN', 25, 84);
+
+  // 3. Large Score Display
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 54px monospace';
+  const scoreText = state.footprint.total.toFixed(1);
+  ctx.fillText(scoreText, 25, 162);
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.font = '9px monospace';
+  ctx.fillText('METRIC TONS CO₂E / YR', 25, 182);
+
+  // 4. Horizontal Progress Rating Bar
+  const score = state.footprint.total;
+  let ratingPercent = 0.5; // default moderate
+  let ratingText = 'MODERATE IMPACT';
   
+  if (score <= 2.0) {
+    ratingPercent = 0.25;
+    ratingText = 'PARIS ALIGNED';
+  } else if (score <= 4.7) {
+    ratingPercent = 0.50;
+    ratingText = 'MODERATE IMPACT';
+  } else if (score <= 10.0) {
+    ratingPercent = 0.75;
+    ratingText = 'HIGH IMPACT';
+  } else {
+    ratingPercent = 1.00;
+    ratingText = 'CRITICAL';
+  }
+
+  const barX = 25;
+  const barY = 196;
+  const barWidth = 200;
+  const barHeight = 4;
+
+  // Background track
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.fillRect(barX, barY, barWidth, barHeight);
+
+  // Foreground active segment
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(barX, barY, barWidth * ratingPercent, barHeight);
+
+  // Rating Text below bar
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.font = 'bold 9px monospace';
+  ctx.fillText(ratingText, 25, 214);
+
+  // 5. Grid Table of Metrics (Bottom section)
+  // Headers: y = 250. Values: y = 266.
+  const colX = [25, 150, 275, 410];
+  
+  // Calculate dynamic metrics
+  const treesOffset = Math.round(score * 20);
+  const diffPercent = ((score - 4.7) / 4.7) * 100;
+  const vsGlobalVal = score === 0 
+    ? '--' 
+    : (diffPercent > 0 ? `+${Math.round(diffPercent)}%` : `${Math.round(diffPercent)}%`);
+  
+  // Find top sector
   const sectors = [
     { name: 'TRANSPORTATION', val: state.footprint.transportation },
     { name: 'HOME ENERGY', val: state.footprint.energy },
     { name: 'DIETARY HABITS', val: state.footprint.diet },
     { name: 'SHOPPING & WASTE', val: state.footprint.consumption }
   ];
+  sectors.sort((a, b) => b.val - a.val);
   
-  const maxSectorVal = Math.max(...sectors.map(s => s.val), 1);
-  
-  sectors.forEach((sec, idx) => {
-    const y = 300 + idx * 45;
-    ctx.font = '10px monospace';
-    ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)';
-    ctx.fillText(`${sec.name}`, 30, y);
-    ctx.fillText(`${sec.val.toFixed(1)}t`, canvas.width - 70, y);
-    
-    ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-    ctx.fillRect(30, y + 8, canvas.width - 100, 6);
-    
-    const barWidth = ((sec.val / maxSectorVal) * (canvas.width - 100));
-    ctx.fillStyle = isDark ? '#ffffff' : '#000000';
-    ctx.fillRect(30, y + 8, barWidth, 6);
-  });
-  
-  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(30, 480);
-  ctx.lineTo(canvas.width - 30, 480);
-  ctx.stroke();
-  
-  ctx.font = '9px monospace';
-  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)';
-  const vsGlobalPercent = ((state.footprint.total - 4.7) / 4.7) * 100;
-  const globalComparison = vsGlobalPercent > 0 
-    ? `${Math.round(vsGlobalPercent)}% ABOVE GLOBAL AVG (4.7t)`
-    : `${Math.round(Math.abs(vsGlobalPercent))}% BELOW GLOBAL AVG (4.7t)`;
-  
-  ctx.fillText(`PARIS TARGET STATUS: ${state.footprint.total <= 2.0 ? 'COMPLIANT' : 'OVER BUDGET (LIMIT: 2.0t)'}`, 30, 505);
-  ctx.fillText(`GLOBAL BENCHMARK: ${globalComparison}`, 30, 520);
+  const sectorNames = {
+    'TRANSPORTATION': 'TRANSPORTATION',
+    'HOME ENERGY': 'ENERGY',
+    'DIETARY HABITS': 'DIET',
+    'SHOPPING & WASTE': 'SHOPPING'
+  };
+  const topSector = score === 0 ? 'NONE' : (sectorNames[sectors[0].name] || sectors[0].name);
 
-  // Draw barcode at bottom right
-  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)';
-  const barcodeX = canvas.width - 130;
-  const barcodeY = 495;
-  const barcodeHeight = 22;
-  const barcodeWidths = [2, 4, 1, 3, 1, 4, 2, 1, 3, 2, 1, 4, 2, 3, 1, 2, 1, 3];
-  
-  let currentX = barcodeX;
-  barcodeWidths.forEach((w, i) => {
-    if (i % 2 === 0) {
-      ctx.fillRect(currentX, barcodeY, w, barcodeHeight);
-    }
-    currentX += w + 1;
+  // Region
+  const regionNames = {
+    'US': 'UNITED STATES',
+    'IN': 'INDIA',
+    'UK': 'UNITED KINGDOM',
+    'EU': 'EUROPE'
+  };
+  const currentRegion = regionNames[state.calculatorInputs.region || 'IN'] || 'INDIA';
+
+  const metricsData = [
+    { label: 'TREES TO OFFSET', val: score === 0 ? '0' : treesOffset.toLocaleString() },
+    { label: 'VS GLOBAL AVG', val: vsGlobalVal },
+    { label: 'TOP SECTOR', val: topSector },
+    { label: 'REGION', val: currentRegion }
+  ];
+
+  metricsData.forEach((col, idx) => {
+    const x = colX[idx];
+    
+    // Header label
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.font = '9px monospace';
+    ctx.fillText(col.label, x, 250);
+    
+    // Value text
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 11px monospace';
+    ctx.fillText(col.val, x, 266);
   });
+
+  // 6. Footer Benchmarks Line (Bottom Right)
+  const regionalAvgs = {
+    'US': 'US AVG 14.4T',
+    'IN': 'INDIA AVG 1.9T',
+    'UK': 'UK AVG 5.5T',
+    'EU': 'EU AVG 6.4T'
+  };
+  const regionalAvgText = regionalAvgs[state.calculatorInputs.region || 'IN'] || 'INDIA AVG 1.9T';
+  const footerText = `PARIS TARGET 2.0T  |  GLOBAL AVG 4.7T  |  ${regionalAvgText}`;
   
-  ctx.font = '7px monospace';
-  ctx.fillText('SYS.AUTH: dad6129-ecosphere', barcodeX - 10, barcodeY + barcodeHeight + 10);
-  
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+  ctx.font = '8px monospace';
+  ctx.fillText(footerText, canvas.width - 25, 296);
+
+  // Trigger download
   const url = canvas.toDataURL('image/png');
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'ecosphere-carbon-passport.png';
+  a.download = 'ecosphere-climate-passport.png';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-}
-
-function drawMiniEcoLeaf(ctx, cx, cy, leafSize, isDark) {
-  ctx.save();
-  
-  // Define symmetrical eco-leaf outline path
-  const leafPath = new Path2D();
-  leafPath.moveTo(cx, cy + leafSize / 2);
-  // Left curve
-  leafPath.bezierCurveTo(cx - leafSize / 1.8, cy + leafSize / 4, cx - leafSize / 1.8, cy - leafSize / 3, cx, cy - leafSize / 2);
-  // Right curve
-  leafPath.bezierCurveTo(cx + leafSize / 1.8, cy - leafSize / 3, cx + leafSize / 1.8, cy + leafSize / 4, cx, cy + leafSize / 2);
-  leafPath.closePath();
-
-  // Draw grid cells inside leaf
-  const cellSize = 5;
-  const startX = cx - leafSize / 2;
-  const endX = cx + leafSize / 2;
-  const startY = cy - leafSize / 2;
-  const endY = cy + leafSize / 2;
-
-  for (let x = startX; x < endX; x += cellSize) {
-    for (let y = startY; y < endY; y += cellSize) {
-      const centerX = x + cellSize / 2;
-      const centerY = y + cellSize / 2;
-      
-      const isLeaf = ctx.isPointInPath(leafPath, centerX, centerY);
-      
-      if (isLeaf) {
-        // Vein check
-        let isVein = false;
-        if (Math.abs(centerX - cx) < 2.0 && centerY >= cy - leafSize / 2 && centerY <= cy + leafSize / 2.2) {
-          isVein = true;
-        } else {
-          const sideVeins = [cy - leafSize / 4, cy - leafSize / 12, cy + leafSize / 12, cy + leafSize / 4];
-          for (let vy of sideVeins) {
-            const expectedY = vy - 0.45 * Math.abs(centerX - cx);
-            if (Math.abs(centerY - expectedY) < 1.8 && centerY < vy) {
-              isVein = true;
-              break;
-            }
-          }
-        }
-
-        // Distance factor
-        const distToCenter = Math.hypot(centerX - cx, centerY - cy);
-        const distanceFactor = 1.0 - Math.min(1, distToCenter / (leafSize / 1.4));
-        
-        let pressure = 0.3 + distanceFactor * 0.5;
-        if (isVein) pressure += 0.25;
-        pressure = Math.min(0.95, Math.max(0.12, pressure));
-
-        const opacity = pressure * 0.85;
-        ctx.fillStyle = isDark
-          ? `rgba(255, 255, 255, ${opacity})`
-          : `rgba(0, 0, 0, ${opacity})`;
-          
-        ctx.fillRect(x + 0.5, y + 0.5, cellSize - 1, cellSize - 1);
-      }
-    }
-  }
-  
-  ctx.restore();
 }
 
 // --- REGIONAL LOCALIZATION HELPERS ---
