@@ -405,78 +405,6 @@
               </div>
             </div>
 
-            <!-- Comparative Carbon Analysis & Equivalencies Card -->
-            <div class="card comparative-card" id="dashboard-comparative-card" style="grid-column: span 2;">
-              <div class="card-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
-                <div>
-                  <h4 class="card-title">Comparative Analysis & Carbon Card</h4>
-                  <span class="card-subtitle">Global benchmarks & real-world offsets</span>
-                </div>
-                <button class="btn btn-secondary btn-small" id="btn-export-passport" aria-label="Download carbon passport card as image">
-                  <i data-lucide="download"></i> Download Passport
-                </button>
-              </div>
-              <div class="card-body comparative-body">
-                <!-- Comparative benchmarks bar -->
-                <div class="benchmark-container">
-                  <h5 class="sub-card-title" style="font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 36px;">Tonnage Comparison</h5>
-                  <div class="benchmark-bar-wrapper">
-                    <div class="benchmark-bar-axis">
-                      <!-- Standard ticks: Paris Target (2.0t), Global Avg (4.7t), User footprint (Xt) -->
-                      <div class="benchmark-tick" style="left: 15%;" id="tick-paris">
-                        <span class="tick-label">Paris Target</span>
-                        <span class="tick-value">2.0t</span>
-                      </div>
-                      <div class="benchmark-tick" style="left: 45%;" id="tick-global">
-                        <span class="tick-label">Global Avg</span>
-                        <span class="tick-value">4.7t</span>
-                      </div>
-                      <div class="benchmark-tick" style="left: 75%;" id="tick-national">
-                        <span class="tick-label" id="national-label">India Avg</span>
-                        <span class="tick-value" id="national-value">1.9t</span>
-                      </div>
-                      <!-- The user indicator -->
-                      <div class="benchmark-marker" id="benchmark-user-marker" style="left: 0%;">
-                        <span class="marker-label">You</span>
-                        <span class="marker-value" id="benchmark-user-value">0.0t</span>
-                      </div>
-                    </div>
-                    <div class="benchmark-bar-line"></div>
-                  </div>
-                </div>
-
-                <!-- Equivalencies grid -->
-                <div class="equivalencies-grid" style="margin-top: 32px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
-                  <div class="equiv-item" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; background: var(--bg-input); border: 1px solid var(--border-color);">
-                    <div class="equiv-icon" style="font-size: 20px;"><i data-lucide="car"></i></div>
-                    <div class="equiv-content" style="display: flex; flex-direction: column;">
-                      <span class="equiv-label" style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Equivalent Car Miles</span>
-                      <span class="equiv-val" id="equiv-miles" style="font-size: 14px; font-weight: 600; color: var(--text-primary);">0 miles</span>
-                    </div>
-                  </div>
-                  <div class="equiv-item" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; background: var(--bg-input); border: 1px solid var(--border-color);">
-                    <div class="equiv-icon" style="font-size: 20px;"><i data-lucide="trees"></i></div>
-                    <div class="equiv-content" style="display: flex; flex-direction: column;">
-                      <span class="equiv-label" style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Trees needed to offset</span>
-                      <span class="equiv-val" id="equiv-trees" style="font-size: 14px; font-weight: 600; color: var(--text-primary);">0 trees</span>
-                    </div>
-                  </div>
-                  <div class="equiv-item" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; background: var(--bg-input); border: 1px solid var(--border-color);">
-                    <div class="equiv-icon" style="font-size: 20px;"><i data-lucide="globe"></i></div>
-                    <div class="equiv-content" style="display: flex; flex-direction: column;">
-                      <span class="equiv-label" style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Vs Global Average</span>
-                      <span class="equiv-val" id="equiv-vs-global" style="font-size: 14px; font-weight: 600; color: var(--text-primary);">--</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Footer methodology citation -->
-                <footer class="methodology-footnote" style="margin-top: 20px; font-size: 10px; color: var(--text-muted); text-align: center; border-top: 1px solid var(--border-color); padding-top: 12px;">
-                  Audit coefficients and metrics sourced from IPCC AR6 (2021) and EPA Greenhouse Gas Equivalencies (2024).
-                </footer>
-              </div>
-            </div>
-
             <!-- What-If Simulation Sandbox Card -->
             <div class="card what-if-card" id="what-if-sandbox">
               <div class="card-header">
@@ -1081,6 +1009,73 @@
           <div class="passport-view-container">
             <div class="passport-card-wrapper" id="passport-card-wrapper-click" title="Click to download high-res passport PNG">
               <canvas id="passport-page-canvas" width="560" height="315"></canvas>
+            </div>
+          </div>
+
+          <!-- Comparative Carbon Analysis & Equivalencies Card (Moved from Workstation) -->
+          <div class="card comparative-card" id="dashboard-comparative-card" style="margin-top: 24px;">
+            <div class="card-header">
+              <h4 class="card-title">Comparative Analysis & Carbon Card</h4>
+              <span class="card-subtitle">Global benchmarks & real-world offsets</span>
+            </div>
+            <div class="card-body comparative-body">
+              <!-- Comparative benchmarks bar -->
+              <div class="benchmark-container">
+                <h5 class="sub-card-title" style="font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 36px;">Tonnage Comparison</h5>
+                <div class="benchmark-bar-wrapper">
+                  <div class="benchmark-bar-axis">
+                    <!-- Standard ticks: Paris Target (2.0t), Global Avg (4.7t), User footprint (Xt) -->
+                    <div class="benchmark-tick" style="left: 15%;" id="tick-paris">
+                      <span class="tick-label">Paris Target</span>
+                      <span class="tick-value">2.0t</span>
+                    </div>
+                    <div class="benchmark-tick" style="left: 45%;" id="tick-global">
+                      <span class="tick-label">Global Avg</span>
+                      <span class="tick-value">4.7t</span>
+                    </div>
+                    <div class="benchmark-tick" style="left: 75%;" id="tick-national">
+                      <span class="tick-label" id="national-label">India Avg</span>
+                      <span class="tick-value" id="national-value">1.9t</span>
+                    </div>
+                    <!-- The user indicator -->
+                    <div class="benchmark-marker" id="benchmark-user-marker" style="left: 0%;">
+                      <span class="marker-label">You</span>
+                      <span class="marker-value" id="benchmark-user-value">0.0t</span>
+                    </div>
+                  </div>
+                  <div class="benchmark-bar-line"></div>
+                </div>
+              </div>
+
+              <!-- Equivalencies grid -->
+              <div class="equivalencies-grid" style="margin-top: 32px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                <div class="equiv-item" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; background: var(--bg-input); border: 1px solid var(--border-color);">
+                  <div class="equiv-icon" style="font-size: 20px;"><i data-lucide="car"></i></div>
+                  <div class="equiv-content" style="display: flex; flex-direction: column;">
+                    <span class="equiv-label" style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Equivalent Car Miles</span>
+                    <span class="equiv-val" id="equiv-miles" style="font-size: 14px; font-weight: 600; color: var(--text-primary);">0 miles</span>
+                  </div>
+                </div>
+                <div class="equiv-item" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; background: var(--bg-input); border: 1px solid var(--border-color);">
+                  <div class="equiv-icon" style="font-size: 20px;"><i data-lucide="trees"></i></div>
+                  <div class="equiv-content" style="display: flex; flex-direction: column;">
+                    <span class="equiv-label" style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Trees needed to offset</span>
+                    <span class="equiv-val" id="equiv-trees" style="font-size: 14px; font-weight: 600; color: var(--text-primary);">0 trees</span>
+                  </div>
+                </div>
+                <div class="equiv-item" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; background: var(--bg-input); border: 1px solid var(--border-color);">
+                  <div class="equiv-icon" style="font-size: 20px;"><i data-lucide="globe"></i></div>
+                  <div class="equiv-content" style="display: flex; flex-direction: column;">
+                    <span class="equiv-label" style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Vs Global Average</span>
+                    <span class="equiv-val" id="equiv-vs-global" style="font-size: 14px; font-weight: 600; color: var(--text-primary);">--</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Footer methodology citation -->
+              <footer class="methodology-footnote" style="margin-top: 20px; font-size: 10px; color: var(--text-muted); text-align: center; border-top: 1px solid var(--border-color); padding-top: 12px;">
+                Audit coefficients and metrics sourced from IPCC AR6 (2021) and EPA Greenhouse Gas Equivalencies (2024).
+              </footer>
             </div>
           </div>
         </section>
