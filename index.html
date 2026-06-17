@@ -255,18 +255,24 @@
               <span>Logger Dock</span>
             </button>
           </li>
+          <li role="presentation">
+            <button class="nav-item" id="tab-passport" role="tab" aria-selected="false" aria-controls="view-passport">
+              <i data-lucide="award" aria-hidden="true"></i>
+              <span>Climate Passport</span>
+            </button>
+          </li>
         </ul>
       </nav>
 
-      <!-- Mini stats tracking widget (Replaced with Passport Canvas) -->
-      <div class="sidebar-stats-card" aria-label="Climate Passport" style="padding: 12px; background: transparent; border: none; display: flex; flex-direction: column; gap: 8px;">
-        <span style="font-size: 10px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 1px; margin-bottom: 2px;">Climate Passport</span>
-        <canvas id="sidebar-passport-canvas" width="560" height="315" style="width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer;" title="Click to download high-res passport PNG"></canvas>
-        
-        <!-- Keep hidden elements to avoid breaking old dependencies -->
-        <span id="sidebar-footprint-value" class="hidden"></span>
-        <span id="sidebar-goal-status" class="hidden"></span>
-        <div id="sidebar-progress" class="hidden"><div class="progress-bar-fill"></div></div>
+      <!-- Mini stats tracking widget -->
+      <div class="sidebar-stats-card" aria-label="Carbon emission status">
+        <h3 class="stats-card-title">Computed Footprint</h3>
+        <div class="stats-card-value" id="sidebar-footprint-value">--</div>
+        <p class="stats-card-unit">metric tons CO<sub>2</sub>e / yr</p>
+        <div class="progress-bar-container" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="sidebar-progress">
+          <div class="progress-bar-fill" style="width: 0%"></div>
+        </div>
+        <span class="progress-bar-label" id="sidebar-goal-status">Target: Not calculated</span>
       </div>
       
       <!-- Back to Landing button -->
@@ -1059,6 +1065,26 @@
             </div>
           </div>
         </section>
+
+        <!-- CLIMATE PASSPORT VIEW -->
+        <section class="app-view" id="view-passport" role="tabpanel" aria-labelledby="tab-passport" tabindex="0">
+          <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <h3>Climate Passport</h3>
+              <p class="section-desc">Your verified carbon credential card. Click to download a high-resolution copy for social sharing.</p>
+            </div>
+            <button class="btn btn-emerald" id="btn-passport-page-download" aria-label="Download passport card as image">
+              <i data-lucide="download"></i> Download Passport PNG
+            </button>
+          </div>
+
+          <div class="passport-view-container">
+            <div class="passport-card-wrapper" id="passport-card-wrapper-click" title="Click to download high-res passport PNG">
+              <canvas id="passport-page-canvas" width="560" height="315"></canvas>
+            </div>
+          </div>
+        </section>
+
 
       </div>
     </main>

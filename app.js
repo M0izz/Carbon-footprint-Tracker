@@ -812,8 +812,8 @@ function updateUI() {
   // Update dashboard equivalencies and comparative benchmarks
   updateDashboardEquivalencies(state.footprint.total);
 
-  // Update sidebar miniature passport representation
-  updateSidebarPassport();
+  // Update full-page Climate Passport mockup
+  updatePagePassport();
 
   // Refresh sandbox simulation outputs
   updateSimulation();
@@ -1300,10 +1300,18 @@ document.addEventListener('DOMContentLoaded', () => {
   initCarbonClock();
   initSimulationListeners();
 
-  // --- Bind Sidebar Passport Click Event to Download Passport ---
-  const sidebarPassportCanvas = document.getElementById('sidebar-passport-canvas');
-  if (sidebarPassportCanvas) {
-    sidebarPassportCanvas.addEventListener('click', exportCarbonPassport);
+  // --- Bind Passport Page Click Events to Download Passport ---
+  const passportPageCanvas = document.getElementById('passport-page-canvas');
+  if (passportPageCanvas) {
+    passportPageCanvas.addEventListener('click', exportCarbonPassport);
+  }
+  const passportCardWrapper = document.getElementById('passport-card-wrapper-click');
+  if (passportCardWrapper) {
+    passportCardWrapper.addEventListener('click', exportCarbonPassport);
+  }
+  const passportPageDownloadBtn = document.getElementById('btn-passport-page-download');
+  if (passportPageDownloadBtn) {
+    passportPageDownloadBtn.addEventListener('click', exportCarbonPassport);
   }
 });
 
@@ -2356,8 +2364,8 @@ function initSimulationListeners() {
   });
 }
 
-function updateSidebarPassport() {
-  const canvas = document.getElementById('sidebar-passport-canvas');
+function updatePagePassport() {
+  const canvas = document.getElementById('passport-page-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   
