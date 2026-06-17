@@ -2050,7 +2050,12 @@ function exportCarbonPassport() {
   ctx.font = '12px monospace';
   ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)';
   ctx.fillText('METRIC TONS CO2e / YEAR', 30, 215);
+
+  // Draw premium visual emblem (Eco-Leaf grid watermark/stamp)
+  drawMiniEcoLeaf(ctx, 320, 150, 120, isDark);
   
+  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+  ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(30, 240);
   ctx.lineTo(canvas.width - 30, 240);
@@ -2084,6 +2089,8 @@ function exportCarbonPassport() {
     ctx.fillRect(30, y + 8, barWidth, 6);
   });
   
+  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+  ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(30, 480);
   ctx.lineTo(canvas.width - 30, 480);
@@ -2098,6 +2105,24 @@ function exportCarbonPassport() {
   
   ctx.fillText(`PARIS TARGET STATUS: ${state.footprint.total <= 2.0 ? 'COMPLIANT' : 'OVER BUDGET (LIMIT: 2.0t)'}`, 30, 505);
   ctx.fillText(`GLOBAL BENCHMARK: ${globalComparison}`, 30, 520);
+
+  // Draw barcode at bottom right
+  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)';
+  const barcodeX = canvas.width - 130;
+  const barcodeY = 495;
+  const barcodeHeight = 22;
+  const barcodeWidths = [2, 4, 1, 3, 1, 4, 2, 1, 3, 2, 1, 4, 2, 3, 1, 2, 1, 3];
+  
+  let currentX = barcodeX;
+  barcodeWidths.forEach((w, i) => {
+    if (i % 2 === 0) {
+      ctx.fillRect(currentX, barcodeY, w, barcodeHeight);
+    }
+    currentX += w + 1;
+  });
+  
+  ctx.font = '7px monospace';
+  ctx.fillText('SYS.AUTH: dad6129-ecosphere', barcodeX - 10, barcodeY + barcodeHeight + 10);
   
   const url = canvas.toDataURL('image/png');
   const a = document.createElement('a');
@@ -2106,6 +2131,69 @@ function exportCarbonPassport() {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+}
+
+function drawMiniEcoLeaf(ctx, cx, cy, leafSize, isDark) {
+  ctx.save();
+  
+  // Define symmetrical eco-leaf outline path
+  const leafPath = new Path2D();
+  leafPath.moveTo(cx, cy + leafSize / 2);
+  // Left curve
+  leafPath.bezierCurveTo(cx - leafSize / 1.8, cy + leafSize / 4, cx - leafSize / 1.8, cy - leafSize / 3, cx, cy - leafSize / 2);
+  // Right curve
+  leafPath.bezierCurveTo(cx + leafSize / 1.8, cy - leafSize / 3, cx + leafSize / 1.8, cy + leafSize / 4, cx, cy + leafSize / 2);
+  leafPath.closePath();
+
+  // Draw grid cells inside leaf
+  const cellSize = 5;
+  const startX = cx - leafSize / 2;
+  const endX = cx + leafSize / 2;
+  const startY = cy - leafSize / 2;
+  const endY = cy + leafSize / 2;
+
+  for (let x = startX; x < endX; x += cellSize) {
+    for (let y = startY; y < endY; y += cellSize) {
+      const centerX = x + cellSize / 2;
+      const centerY = y + cellSize / 2;
+      
+      const isLeaf = ctx.isPointInPath(leafPath, centerX, centerY);
+      
+      if (isLeaf) {
+        // Vein check
+        let isVein = false;
+        if (Math.abs(centerX - cx) < 2.0 && centerY >= cy - leafSize / 2 && centerY <= cy + leafSize / 2.2) {
+          isVein = true;
+        } else {
+          const sideVeins = [cy - leafSize / 4, cy - leafSize / 12, cy + leafSize / 12, cy + leafSize / 4];
+          for (let vy of sideVeins) {
+            const expectedY = vy - 0.45 * Math.abs(centerX - cx);
+            if (Math.abs(centerY - expectedY) < 1.8 && centerY < vy) {
+              isVein = true;
+              break;
+            }
+          }
+        }
+
+        // Distance factor
+        const distToCenter = Math.hypot(centerX - cx, centerY - cy);
+        const distanceFactor = 1.0 - Math.min(1, distToCenter / (leafSize / 1.4));
+        
+        let pressure = 0.3 + distanceFactor * 0.5;
+        if (isVein) pressure += 0.25;
+        pressure = Math.min(0.95, Math.max(0.12, pressure));
+
+        const opacity = pressure * 0.85;
+        ctx.fillStyle = isDark
+          ? `rgba(255, 255, 255, ${opacity})`
+          : `rgba(0, 0, 0, ${opacity})`;
+          
+        ctx.fillRect(x + 0.5, y + 0.5, cellSize - 1, cellSize - 1);
+      }
+    }
+  }
+  
+  ctx.restore();
 }
 
 // --- REGIONAL LOCALIZATION HELPERS ---
@@ -2200,9 +2288,9 @@ function initCarbonClock() {
     emissionsThisYear += RATE_PER_TICK;
     emissionsSinceVisit += RATE_PER_TICK;
     
-    // Format numbers nicely: integers for annual, decimal for visit
+    // Format numbers nicely: integers for both annual and visit
     globalYearEl.textContent = Math.round(emissionsThisYear).toLocaleString();
-    globalVisitEl.textContent = emissionsSinceVisit.toFixed(2);
+    globalVisitEl.textContent = Math.round(emissionsSinceVisit).toLocaleString();
   }, INTERVAL_MS);
 }
 
