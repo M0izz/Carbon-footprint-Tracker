@@ -812,6 +812,9 @@ function updateUI() {
   // Update dashboard equivalencies and comparative benchmarks
   updateDashboardEquivalencies(state.footprint.total);
 
+  // Update sidebar miniature passport representation
+  updateSidebarPassport();
+
   // Refresh sandbox simulation outputs
   updateSimulation();
 
@@ -1296,6 +1299,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initRegionSelector();
   initCarbonClock();
   initSimulationListeners();
+
+  // --- Bind Sidebar Passport Click Event to Download Passport ---
+  const sidebarPassportCanvas = document.getElementById('sidebar-passport-canvas');
+  if (sidebarPassportCanvas) {
+    sidebarPassportCanvas.addEventListener('click', exportCarbonPassport);
+  }
 });
 
 // ======================================================================
@@ -2345,5 +2354,180 @@ function initSimulationListeners() {
       el.addEventListener('change', updateSimulation);
     }
   });
+}
+
+function updateSidebarPassport() {
+  const canvas = document.getElementById('sidebar-passport-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  // Fill background with rounded corners
+  ctx.fillStyle = '#0a0a0a';
+  
+  const radius = 14;
+  ctx.beginPath();
+  ctx.moveTo(radius, 0);
+  ctx.lineTo(canvas.width - radius, 0);
+  ctx.quadraticCurveTo(canvas.width, 0, canvas.width, radius);
+  ctx.lineTo(canvas.width, canvas.height - radius);
+  ctx.quadraticCurveTo(canvas.width, canvas.height, canvas.width - radius, canvas.height);
+  ctx.lineTo(radius, canvas.height);
+  ctx.quadraticCurveTo(0, canvas.height, 0, canvas.height - radius);
+  ctx.lineTo(0, radius);
+  ctx.quadraticCurveTo(0, 0, radius, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.clip();
+
+  // Draw dot grid texture
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+  const dotCols = 10;
+  const dotRows = 7;
+  const spacingX = 14;
+  const spacingY = 14;
+  const startGridX = 380;
+  const startGridY = 48;
+  for (let col = 0; col < dotCols; col++) {
+    for (let row = 0; row < dotRows; row++) {
+      ctx.beginPath();
+      ctx.arc(startGridX + col * spacingX, startGridY + row * spacingY, 1.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Set default text alignment
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+
+  // 1. Top Header Line
+  ctx.font = '9px monospace';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.fillText('ECOSPHERE  |  CLIMATE PLATFORM', 25, 36);
+
+  // Issued date aligned right
+  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  const d = new Date();
+  const dateStr = `• ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+  ctx.textAlign = 'right';
+  ctx.fillText(dateStr, canvas.width - 25, 36);
+
+  // 2. Title Section (Top Left)
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 12px monospace';
+  ctx.fillText('CLIMATE PASSPORT', 25, 68);
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.font = '9px monospace';
+  ctx.fillText('CLIMATE CITIZEN', 25, 84);
+
+  // 3. Large Score Display
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 54px monospace';
+  const scoreText = state.footprint.total.toFixed(1);
+  ctx.fillText(scoreText, 25, 162);
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.font = '9px monospace';
+  ctx.fillText('METRIC TONS CO₂E / YR', 25, 182);
+
+  // 4. Horizontal Progress Rating Bar
+  const score = state.footprint.total;
+  let ratingPercent = 0.5;
+  let ratingText = 'MODERATE IMPACT';
+  
+  if (score <= 2.0) {
+    ratingPercent = 0.25;
+    ratingText = 'PARIS ALIGNED';
+  } else if (score <= 4.7) {
+    ratingPercent = 0.50;
+    ratingText = 'MODERATE IMPACT';
+  } else if (score <= 10.0) {
+    ratingPercent = 0.75;
+    ratingText = 'HIGH IMPACT';
+  } else {
+    ratingPercent = 1.00;
+    ratingText = 'CRITICAL';
+  }
+
+  const barX = 25;
+  const barY = 196;
+  const barWidth = 200;
+  const barHeight = 4;
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.fillRect(barX, barY, barWidth, barHeight);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(barX, barY, barWidth * ratingPercent, barHeight);
+
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.font = 'bold 9px monospace';
+  ctx.fillText(ratingText, 25, 214);
+
+  // 5. Grid Table of Metrics (Bottom section)
+  const colX = [25, 150, 275, 410];
+  const treesOffset = Math.round(score * 20);
+  const diffPercent = ((score - 4.7) / 4.7) * 100;
+  const vsGlobalVal = score === 0 
+    ? '--' 
+    : (diffPercent > 0 ? `+${Math.round(diffPercent)}%` : `${Math.round(diffPercent)}%`);
+  
+  const sectors = [
+    { name: 'TRANSPORTATION', val: state.footprint.transportation },
+    { name: 'HOME ENERGY', val: state.footprint.energy },
+    { name: 'DIETARY HABITS', val: state.footprint.diet },
+    { name: 'SHOPPING & WASTE', val: state.footprint.consumption }
+  ];
+  sectors.sort((a, b) => b.val - a.val);
+  
+  const sectorNames = {
+    'TRANSPORTATION': 'TRANSPORTATION',
+    'HOME ENERGY': 'ENERGY',
+    'DIETARY HABITS': 'DIET',
+    'SHOPPING & WASTE': 'SHOPPING'
+  };
+  const topSector = score === 0 ? 'NONE' : (sectorNames[sectors[0].name] || sectors[0].name);
+
+  const regionNames = {
+    'US': 'UNITED STATES',
+    'IN': 'INDIA',
+    'UK': 'UNITED KINGDOM',
+    'EU': 'EUROPE'
+  };
+  const currentRegion = regionNames[state.calculatorInputs.region || 'IN'] || 'INDIA';
+
+  const metricsData = [
+    { label: 'TREES TO OFFSET', val: score === 0 ? '0' : treesOffset.toLocaleString() },
+    { label: 'VS GLOBAL AVG', val: vsGlobalVal },
+    { label: 'TOP SECTOR', val: topSector },
+    { label: 'REGION', val: currentRegion }
+  ];
+
+  metricsData.forEach((col, idx) => {
+    const x = colX[idx];
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.font = '9px monospace';
+    ctx.fillText(col.label, x, 250);
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 11px monospace';
+    ctx.fillText(col.val, x, 266);
+  });
+
+  // 6. Footer Benchmarks Line
+  const regionalAvgs = {
+    'US': 'US AVG 14.4T',
+    'IN': 'INDIA AVG 1.9T',
+    'UK': 'UK AVG 5.5T',
+    'EU': 'EU AVG 6.4T'
+  };
+  const regionalAvgText = regionalAvgs[state.calculatorInputs.region || 'IN'] || 'INDIA AVG 1.9T';
+  const footerText = `PARIS 2.0T  |  GLOBAL 4.7T  |  ${regionalAvgText}`;
+  
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+  ctx.font = '8px monospace';
+  ctx.fillText(footerText, canvas.width - 25, 296);
 }
 
