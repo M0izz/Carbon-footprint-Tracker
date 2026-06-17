@@ -192,6 +192,7 @@ h1, h2, h3, h4, h5 {
 .text-gradient {
   background: var(--accent-gradient);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 .text-emerald { color: var(--accent) !important; }
@@ -2052,16 +2053,15 @@ label {
   opacity: 0.7;
 }
 
-/* Glitch Heading Scrambler */
-.glitch-title {
-  position: relative;
-  transition: opacity 0.3s ease;
+/* Smooth Title Reveal Animation */
+.smooth-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1), transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.glitch-title.scrambled {
-  font-family: monospace;
-  letter-spacing: -1px;
-  color: var(--accent);
-  opacity: 0.9;
+.smooth-reveal.reveal-active {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Grid overlay hover highlights for Cards */
@@ -2096,5 +2096,28 @@ label {
 }
 .card:hover::before, .showcase-card:hover::before {
   opacity: 1;
+}
+
+/* Premium Word Split-Reveal Animation */
+.word-wrapper {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  margin-right: 0.18em;
+  white-space: nowrap;
+}
+.word-inner {
+  display: inline-block;
+  transform: translateY(100%);
+  opacity: 0;
+}
+.reveal-active .word-inner {
+  animation: revealWord 1.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes revealWord {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 

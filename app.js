@@ -1233,74 +1233,12 @@ document.addEventListener('DOMContentLoaded', () => {
   init3DEarth();
   initScrollFrequencyWave();
   initCyberLoader();
-  initGlitchTextScrambler();
+  initPremiumTitleAnimations();
 });
 
 // ======================================================================
-// CYBER REDESIGN: 3D EARTH, FREQUENCY WAVE, SCRAMBLER & LOADER ENGINE
+// CYBER REDESIGN: 3D EARTH, FREQUENCY WAVE, REVEAL ANIMATIONS & FOOTPRINT
 // ======================================================================
-
-function scrambleText(element, finalHtml, duration = 1200) {
-  const chars = '0123456789%&#$@+*=[{}]><!?^';
-  
-  // Create a plain text map to measure decoding lengths
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = finalHtml;
-  const plainText = tempDiv.innerText;
-  
-  const startTime = performance.now();
-  
-  function update(time) {
-    const elapsed = time - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    
-    let htmlOutput = '';
-    let inTag = false;
-    let textCharCount = 0;
-    
-    const correctCharsCount = Math.floor(plainText.length * progress);
-    
-    for (let i = 0; i < finalHtml.length; i++) {
-      const char = finalHtml[i];
-      if (char === '<') {
-        inTag = true;
-        htmlOutput += char;
-        continue;
-      }
-      if (char === '>') {
-        inTag = false;
-        htmlOutput += char;
-        continue;
-      }
-      if (inTag) {
-        htmlOutput += char;
-        continue;
-      }
-      
-      if (char === ' ' || char === '\n' || char === '\t') {
-        htmlOutput += char;
-        continue;
-      }
-      
-      textCharCount++;
-      if (textCharCount <= correctCharsCount) {
-        htmlOutput += char;
-      } else {
-        htmlOutput += chars[Math.floor(Math.random() * chars.length)];
-      }
-    }
-    
-    element.innerHTML = htmlOutput;
-    
-    if (progress < 1) {
-      requestAnimationFrame(update);
-    } else {
-      element.innerHTML = finalHtml;
-    }
-  }
-  
-  requestAnimationFrame(update);
-}
 
 function init3DEarth() {
   const canvas = document.getElementById('canvas-earth-3d');
@@ -1605,89 +1543,86 @@ function initCyberLoader() {
       clearInterval(footprintInterval);
       loader.classList.add('fade-out');
       
-      // Decode title once loading finishes
+      // Reveal title with a smooth CSS transition
       setTimeout(() => {
         const heroTitle = document.getElementById('scramble-hero-title');
         if (heroTitle) {
-          scrambleText(heroTitle, `YOUR CLIMATE PATHWAY, <span class="text-gradient">REIMAGINED</span>`, 1400);
+          heroTitle.classList.add('reveal-active');
         }
-      }, 150);
+      }, 100);
     }
   }
 
   requestAnimationFrame(update);
 }
 
-function initGlitchTextScrambler() {
-  const title = document.getElementById('scramble-showcase-title');
-  if (!title) return;
+function initPremiumTitleAnimations() {
+  // 1. Hero Title - Split words with wrapping
+  const heroTitle = document.getElementById('scramble-hero-title');
+  if (heroTitle) {
+    const words = ["YOUR", "CLIMATE", "PATHWAY,", "REIMAGINED"];
+    heroTitle.innerHTML = words.map((word, idx) => {
+      let content = word;
+      if (word === "REIMAGINED") {
+        content = `<span class="text-gradient">REIMAGINED</span>`;
+      }
+      return `<span class="word-wrapper"><span class="word-inner" style="animation-delay: ${idx * 0.12}s">${content}</span></span>`;
+    }).join(' ');
+  }
 
-  if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          scrambleText(title, 'THREE PILLARS OF ACTION', 1200);
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.15 });
-    observer.observe(title);
+  // 2. Showcase Title - Split words with wrapping
+  const showcaseTitle = document.getElementById('scramble-showcase-title');
+  if (showcaseTitle) {
+    const words = ["THREE", "PILLARS", "OF", "ACTION"];
+    showcaseTitle.innerHTML = words.map((word, idx) => {
+      return `<span class="word-wrapper"><span class="word-inner" style="animation-delay: ${idx * 0.12}s">${word}</span></span>`;
+    }).join(' ');
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            showcaseTitle.classList.add('reveal-active');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      observer.observe(showcaseTitle);
+    } else {
+      showcaseTitle.classList.add('reveal-active');
+    }
   }
 }
 
 // ======================================================================
-// INTERACTIVE GRID PRESSURE FOOTPRINT REDESIGN (PINTEREST INSPIRATION)
+// INTERACTIVE MATHEMATICAL ECO-LEAF GRID SCANNER (REDESIGNED VECTORS)
 // ======================================================================
 
 let gridFootprintOffset = 0;
 let gridFootprintPressureMultiplier = 1.0;
+let gridScanlineY = 40;
 
 function initGridFootprint() {
   const canvas = document.getElementById('canvas-grid-footprint');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-
   const width = canvas.width;
   const height = canvas.height;
 
-  // Path coordinates representing the human footprint shape
-  const path = new Path2D();
+  // Define symmetrical eco-leaf outline path
+  const leafPath = new Path2D();
+  const cx = width / 2;    // 110
+  const cy = height / 2;   // 140
   
-  // Center and scale zentangle coordinates:
-  // Original width ~54 (x: 68 to 122), height ~147 (y: 45 to 192)
-  // Scale and translate to fit nicely in 220x280 canvas space
-  const soleScale = 1.15;
-  const xTranslate = 10;
-  const yTranslate = 30;
+  // Stem base at (110, 240)
+  // Leaf tip at (110, 45)
+  leafPath.moveTo(cx, 240);
+  // Left curve
+  leafPath.bezierCurveTo(cx - 75, 190, cx - 75, 85, cx, 45);
+  // Right curve
+  leafPath.bezierCurveTo(cx + 75, 85, cx + 75, 190, cx, 240);
+  leafPath.closePath();
 
-  function tx(x) { return x * soleScale + xTranslate; }
-  function ty(y) { return y * soleScale + yTranslate; }
-
-  // Draw Sole path outline
-  path.moveTo(tx(95), ty(45));
-  path.bezierCurveTo(tx(80), ty(45), tx(68), ty(60), tx(68), ty(95));
-  path.bezierCurveTo(tx(68), ty(115), tx(76), ty(125), tx(78), ty(135));
-  path.bezierCurveTo(tx(80), ty(140), tx(73), ty(148), tx(70), ty(158));
-  path.bezierCurveTo(tx(66), ty(175), tx(78), ty(192), tx(95), ty(192));
-  path.bezierCurveTo(tx(112), ty(192), tx(122), ty(178), tx(122), ty(150));
-  path.bezierCurveTo(tx(122), ty(120), tx(110), ty(45), tx(95), ty(45));
-  path.closePath();
-
-  // Draw Toes
-  const toes = [
-    { cx: 95, cy: 23, r: 11 },   // Big toe
-    { cx: 111, cy: 26, r: 6.5 }, // Toe 2
-    { cx: 123, cy: 33, r: 5.5 }, // Toe 3
-    { cx: 132, cy: 44, r: 4.5 }, // Toe 4
-    { cx: 138, cy: 57, r: 3.5 }  // Toe 5
-  ];
-
-  toes.forEach(toe => {
-    path.moveTo(tx(toe.cx) + toe.r * soleScale, ty(toe.cy));
-    path.arc(tx(toe.cx), ty(toe.cy), toe.r * soleScale, 0, Math.PI * 2);
-  });
-
-  // Render loop
   function renderGrid() {
     ctx.clearRect(0, 0, width, height);
     
@@ -1695,26 +1630,61 @@ function initGridFootprint() {
     const gridLineColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)';
     const cellSize = 6;
     
+    // Update scanline position
+    gridScanlineY += 1.5;
+    if (gridScanlineY > 250) {
+      gridScanlineY = 35;
+    }
+    
     for (let x = 0; x < width; x += cellSize) {
       for (let y = 0; y < height; y += cellSize) {
         const centerX = x + cellSize / 2;
         const centerY = y + cellSize / 2;
         
-        // If coordinate point is inside the foot boundaries
-        if (ctx.isPointInPath(path, centerX, centerY)) {
-          // Calculate distance to sole nodes (heel/ball) to simulate pressure mapping
-          const distBall = Math.hypot(centerX - tx(100), centerY - ty(100));
-          const distHeel = Math.hypot(centerX - tx(95), centerY - ty(170));
-          const minDist = Math.min(distBall, distHeel);
+        const isLeaf = ctx.isPointInPath(leafPath, centerX, centerY);
+        
+        if (isLeaf) {
+          // Check if this cell is on a vein
+          let isVein = false;
+          if (Math.abs(centerX - cx) < 2.5 && centerY >= 45 && centerY <= 230) {
+            isVein = true;
+          } else {
+            const sideVeins = [75, 105, 135, 165, 195];
+            for (let vy of sideVeins) {
+              const expectedY = vy - 0.45 * Math.abs(centerX - cx);
+              if (Math.abs(centerY - expectedY) < 2.2 && centerY < vy) {
+                isVein = true;
+                break;
+              }
+            }
+          }
           
-          // Compute cell alpha based on pressure and timeline noise
-          const noise = Math.sin(centerX * 0.08 + centerY * 0.055 + gridFootprintOffset) * 0.14;
-          const pressure = Math.max(0.12, Math.min(0.95, (1.0 - minDist / 75) * gridFootprintPressureMultiplier + noise));
+          // Calculate distance factors
+          const distToCenter = Math.hypot(centerX - cx, centerY - cy);
+          const distanceFactor = 1.0 - Math.min(1, distToCenter / 120);
           
-          // Generate cell shade matching the pressure
+          // Noise factor
+          const noise = Math.sin(centerX * 0.09 + centerY * 0.06 + gridFootprintOffset) * 0.12;
+          
+          // Base pressure calculation
+          let rawPressure = 0.35 + distanceFactor * 0.45 + noise;
+          if (isVein) {
+            rawPressure += 0.25; // Veins glow brighter
+          }
+          
+          // Add scanline glowing effect
+          const distToScanline = Math.abs(centerY - gridScanlineY);
+          if (distToScanline < 12) {
+            rawPressure += (1.0 - distToScanline / 12) * 0.35;
+          }
+          
+          // Bound pressure
+          const pressure = Math.max(0.12, Math.min(0.98, rawPressure * gridFootprintPressureMultiplier));
+          
+          // Compute color
           const shade = isDark
             ? Math.round(255 * pressure)
-            : Math.round(200 * (1 - pressure));
+            : Math.round(180 * (1 - pressure));
           
           ctx.fillStyle = isDark
             ? `rgba(${shade}, ${shade}, ${shade}, ${pressure})`
@@ -1722,7 +1692,7 @@ function initGridFootprint() {
           
           ctx.fillRect(x + 0.5, y + 0.5, cellSize - 1.5, cellSize - 1.5);
         } else {
-          // Draw plain wireframe mesh cell
+          // Draw standard wireframe background mesh cell
           ctx.strokeStyle = gridLineColor;
           ctx.lineWidth = 0.5;
           ctx.strokeRect(x, y, cellSize, cellSize);
@@ -1730,7 +1700,8 @@ function initGridFootprint() {
       }
     }
     
-    gridFootprintOffset += 0.055;
+    // Pulse animation offset
+    gridFootprintOffset += 0.04 * gridFootprintPressureMultiplier;
     requestAnimationFrame(renderGrid);
   }
   
