@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="EcoSphere - Visualise, track, and reduce your carbon pressure print through animated topographic insights and personal assistant advice.">
+  <title>EcoSphere | Your Climate Footprint, Reimagined</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- Lucide Icons CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js" defer></script>
+</head>
+<body>
+  <!-- Cyber Footprint Loader Overlay -->
+  <div class="cyber-loader-overlay" id="cyber-loader">
+    <div class="scanline-effect"></div>
+    <div class="footsteps-track" id="loader-footsteps-track">
+      <!-- Alternating stepping footprints -->
+      <div class="loader-footstep step-left" id="step-1" style="--rot: -10deg; top: 180px;">
+        <svg viewBox="0 0 100 150">
+          <path d="M50,30 C40,30 30,45 30,80 C30,100 38,110 40,120 C42,125 35,133 32,143 C28,160 40,177 57,177 C74,177 84,163 84,135 C84,105 72,30 50,30 Z" transform="scale(0.85) translate(8, 10)" />
+          <circle cx="50" cy="12" r="9" />
+          <circle cx="68" cy="18" r="6" />
+          <circle cx="80" cy="28" r="5" />
+          <circle cx="89" cy="40" r="4" />
+          <circle cx="94" cy="53" r="3" />
+        </svg>
+      </div>
+      <div class="loader-footstep step-right" id="step-2" style="--rot: 10deg; top: 100px;">
+        <svg viewBox="0 0 100 150">
+          <path d="M50,30 C60,30 40,45 40,80 C40,100 48,110 50,120 C52,125 45,133 42,143 C38,160 50,177 67,177 C84,177 74,163 74,135 C74,105 62,30 50,30 Z" transform="scale(0.85) translate(8, 10)" />
+          <circle cx="50" cy="12" r="9" />
+          <circle cx="32" cy="18" r="6" />
+          <circle cx="20" cy="28" r="5" />
+          <circle cx="11" cy="40" r="4" />
+          <circle cx="6" cy="53" r="3" />
+        </svg>
+      </div>
+      <div class="loader-footstep step-left" id="step-3" style="--rot: -10deg; top: 20px;">
+        <svg viewBox="0 0 100 150">
+          <path d="M50,30 C40,30 30,45 30,80 C30,100 38,110 40,120 C42,125 35,133 32,143 C28,160 40,177 57,177 C74,177 84,163 84,135 C84,105 72,30 50,30 Z" transform="scale(0.85) translate(8, 10)" />
+          <circle cx="50" cy="12" r="9" />
+          <circle cx="68" cy="18" r="6" />
+          <circle cx="80" cy="28" r="5" />
+          <circle cx="89" cy="40" r="4" />
+          <circle cx="94" cy="53" r="3" />
+        </svg>
+      </div>
+    </div>
+    <div class="loader-diagnostics">
+      <div class="loader-title">initializing ecosphere</div>
+      <div class="loader-status-text" id="loader-status">ESTABLISHING QUANTUM PATHWAYS...</div>
+      <div class="loader-bar-bg">
+        <div class="loader-bar-fill" id="loader-progress"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cinematic Grain Noise Overlay -->
+  <div class="grain-overlay" aria-hidden="true"></div>
+  <!-- Cursor Glow Effect -->
+  <div class="cursor-glow" id="cursor-glow" aria-hidden="true"></div>
+
+  <!-- Accessibility Skip Link -->
+  <a href="#main-dashboard" class="skip-link">Skip to dashboard workstation</a>
+
+  <!-- LANDING PAGE VIEWPORT -->
+  <section class="landing-viewport" id="landing-screen" aria-label="EcoSphere Welcoming Screen">
+    <!-- Background Grid and Topographic curves decoration -->
+    <div class="landing-bg-decorations" aria-hidden="true">
+      <div class="topographic-grid-overlay"></div>
+      <canvas id="canvas-earth-3d"></canvas>
+    </div>
+
+    <!-- Landing Top Header -->
+    <header class="landing-header">
+      <div class="brand">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-emerald" aria-hidden="true">
+          <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7255 3.09032 17.1962 4.85857 19" />
+          <path d="M12 6V12L16 14" />
+          <path d="M2 12h10" />
+        </svg>
+        <span>EcoSphere</span>
+      </div>
+      <div class="landing-nav-actions">
+        <button class="icon-btn" id="btn-theme-toggle-landing" aria-label="Toggle Light/Dark Theme" title="Toggle Theme">
+          <i data-lucide="sun"></i>
+        </button>
+        <button class="btn btn-emerald" id="btn-enter-workspace" aria-label="Enter App Workstation">Explore Workstation</button>
+      </div>
+    </header>
+
+    <!-- SECTION 1: HERO CONTAINER -->
+    <div class="hero-container" id="hero-section">
+      <div class="hero-text-block">
+        <span class="hero-pretitle">Interactive Climate Pathway</span>
+        <h1 class="hero-title glitch-title" id="scramble-hero-title">YOUR CLIMATE PATHWAY, <span class="text-gradient">REIMAGINED</span></h1>
+        <p class="hero-desc">Every individual choice ripples outward. Map your lifestyle's ecological pressure footprint, log your daily reductions, and discover personalized pathways guided by our climate assistant.</p>
+        <div class="hero-actions-row">
+          <button class="btn btn-emerald btn-large" id="btn-hero-calc">
+            Start Footprint Audit <i data-lucide="arrow-right"></i>
+          </button>
+          <button class="btn btn-secondary btn-large" id="btn-hero-workspace">
+            Workspace Hub
+          </button>
+        </div>
+      </div>
+
+      <!-- Grid Footprint Visualizer (Pinterest Inspiration) -->
+      <div class="hero-graphic-block" aria-label="Grid Pressure Footprint Visualization">
+        <div class="footprint-glow-container">
+          <canvas id="canvas-grid-footprint" width="220" height="280"></canvas>
+        </div>
+      </div>
+
+      <!-- Ticking scroll promoter -->
+      <div class="hero-scroll-indicator" aria-hidden="true">
+        <span>SCROLL TO DISCOVER</span>
+        <div class="mouse-node">
+          <div class="mouse-wheel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS TICKER STRIP -->
+    <div class="stats-ticker-strip" id="stats-ticker">
+      <div class="stat-ticker-item">
+        <span class="stat-ticker-value" data-count="4.5">0</span>
+        <span class="stat-ticker-label">Avg Global Tons</span>
+      </div>
+      <div class="stat-ticker-item">
+        <span class="stat-ticker-value" data-count="2.0">0</span>
+        <span class="stat-ticker-label">Paris Target</span>
+      </div>
+      <div class="stat-ticker-item">
+        <span class="stat-ticker-value" data-count="14">0</span>
+        <span class="stat-ticker-label">Audit Questions</span>
+      </div>
+      <div class="stat-ticker-item">
+        <span class="stat-ticker-value" data-count="6">0</span>
+        <span class="stat-ticker-label">Achievements</span>
+      </div>
+    </div>
+
+    <!-- SECTION 2: INTERACTIVE SCROLL SHOWCASE -->
+    <div class="scroll-showcase" id="features-scroll-section">
+      <span class="showcase-pretitle">The EcoSphere Engine</span>
+      <h2 class="showcase-title glitch-title" id="scramble-showcase-title">THREE PILLARS OF ACTION</h2>
+      
+      <!-- Scrolling frequency wave overlay -->
+      <div class="scroll-frequency-container">
+        <canvas id="canvas-scroll-frequency"></canvas>
+      </div>
+
+      <div class="showcase-grid">
+        
+        <div class="showcase-card reveal-element reveal-slide-left">
+          <div class="showcase-card-glow"></div>
+          <div class="step-number">01</div>
+          <div class="showcase-card-icon">
+            <i data-lucide="calculator"></i>
+          </div>
+          <h3>Measure Progressively</h3>
+          <p>Answer simple, intuitive questions one by one. Skip sections you are unsure about. No complicated metrics or inputs required.</p>
+          <div class="card-hover-indicator"></div>
+        </div>
+
+        <div class="showcase-card reveal-element reveal-slide-left delay-1">
+          <div class="showcase-card-glow"></div>
+          <div class="step-number">02</div>
+          <div class="showcase-card-icon">
+            <i data-lucide="check-square"></i>
+          </div>
+          <h3>Record Green Choices</h3>
+          <p>Earn eco-points in real-time by checking off green commuting, diet adjustments, or utility savings in your workspace hub.</p>
+          <div class="card-hover-indicator"></div>
+        </div>
+
+        <div class="showcase-card reveal-element reveal-slide-left delay-2">
+          <div class="showcase-card-glow"></div>
+          <div class="step-number">03</div>
+          <div class="showcase-card-icon">
+            <i data-lucide="sparkles"></i>
+          </div>
+          <h3>Get Tailored Insights</h3>
+          <p>Our intelligent climate assistant, EcoSphera, processes your ecological pressure score to deliver localized tips and weekly schedules.</p>
+          <div class="card-hover-indicator"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- LANDING FOOTER -->
+    <footer class="landing-footer">
+      <span>&copy; 2026 EcoSphere — Climate Intelligence Platform</span>
+      <span>Designed for a sustainable future</span>
+    </footer>
+  </section>
+
+  <!-- DASHBOARD WORKSPACE VIEWPORT -->
+  <div class="app-container app-workspace hidden" id="main-dashboard">
+    <!-- Sidebar Navigation Dock -->
+    <aside class="sidebar" role="complementary" aria-label="Sidebar Navigation">
+      <div class="brand">
+        <div class="logo-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7255 3.09032 17.1962 4.85857 19" />
+            <path d="M12 6V12L16 14" />
+            <path d="M2 12h10" />
+          </svg>
+        </div>
+        <h2>EcoSphere</h2>
+      </div>
+
+      <nav class="nav-menu" role="navigation" aria-label="Workspace Tabs">
+        <ul role="tablist" id="main-tabs">
+          <li role="presentation">
+            <button class="nav-item active" id="tab-dashboard" role="tab" aria-selected="true" aria-controls="view-dashboard">
+              <i data-lucide="layout-dashboard" aria-hidden="true"></i>
+              <span>Workstation</span>
+            </button>
+          </li>
+          <li role="presentation">
+            <button class="nav-item" id="tab-calculator" role="tab" aria-selected="false" aria-controls="view-calculator">
+              <i data-lucide="calculator" aria-hidden="true"></i>
+              <span>Calculator</span>
+            </button>
+          </li>
+          <li role="presentation">
+            <button class="nav-item" id="tab-logger" role="tab" aria-selected="false" aria-controls="view-logger">
+              <i data-lucide="check-square" aria-hidden="true"></i>
+              <span>Logger Dock</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Mini stats tracking widget -->
+      <div class="sidebar-stats-card" aria-label="Carbon emission status">
+        <h3 class="stats-card-title">Computed Footprint</h3>
+        <div class="stats-card-value" id="sidebar-footprint-value">--</div>
+        <p class="stats-card-unit">metric tons CO<sub>2</sub>e / yr</p>
+        <div class="progress-bar-container" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="sidebar-progress">
+          <div class="progress-bar-fill" style="width: 0%"></div>
+        </div>
+        <span class="progress-bar-label" id="sidebar-goal-status">Target: Not calculated</span>
+      </div>
+      
+      <!-- Back to Landing button -->
+      <button class="btn btn-secondary btn-block btn-back-landing" id="btn-back-landing" style="margin-top: 12px;">
+        <i data-lucide="arrow-left"></i> Home Screen
+      </button>
+    </aside>
+
+    <!-- App Workstation Frame -->
+    <main class="main-content" id="main-content" tabindex="-1">
+      <!-- Top header bar -->
+      <header class="top-bar">
+        <div class="welcome-text">
+          <span class="greeting" id="user-greeting">Welcome, Climate Citizen</span>
+          <p class="date-string" id="current-date"></p>
+        </div>
+        
+        <div class="top-actions">
+          <div class="points-badge" title="Eco points accrued">
+            <i data-lucide="leaf" class="text-emerald"></i>
+            <span id="eco-points">0</span> pts
+          </div>
+          <button class="icon-btn" id="btn-theme-toggle" aria-label="Toggle light/dark mode" title="Toggle Theme">
+            <i data-lucide="sun" id="theme-icon"></i>
+          </button>
+          <button class="icon-btn" id="btn-reset-data" aria-label="Reset workspace data" title="Reset All Data">
+            <i data-lucide="refresh-cw"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Workstation Viewport -->
+      <div class="view-viewport">
+        
+        <!-- WORKSTATION / DASHBOARD VIEW -->
+        <section class="app-view active" id="view-dashboard" role="tabpanel" aria-labelledby="tab-dashboard" tabindex="0">
+          <h3 class="sr-only">Workstation Dashboard</h3>
+
+          <!-- AI Context Alert Banner -->
+          <div class="assistant-alert-banner" id="dashboard-assistant-tip" role="alert">
+            <div class="banner-icon">
+              <i data-lucide="sparkles"></i>
+            </div>
+            <div class="banner-content">
+              <h4 class="banner-title">EcoSphera Insight</h4>
+              <p class="banner-text" id="assistant-banner-text">Input parameters into the Calculator to launch recommendations.</p>
+            </div>
+            <button class="banner-action-btn" id="btn-banner-action">Get Started</button>
+          </div>
+
+          <!-- Glassmorphism Cards Grid -->
+          <div class="dashboard-grid">
+            
+            <!-- Carbon source donut card -->
+            <div class="card chart-card">
+              <div class="card-header">
+                <h4 class="card-title">Impact Distribution</h4>
+                <span class="card-subtitle">By category sources (CO<sub>2</sub>e)</span>
+              </div>
+              <div class="card-body chart-body">
+                <div class="svg-chart-container">
+                  <svg id="svg-donut-chart" viewBox="0 0 200 200" width="100%" height="100%">
+                    <circle cx="100" cy="100" r="75" fill="none" stroke="var(--border-color)" stroke-width="16" />
+                    <text x="100" y="95" text-anchor="middle" font-family="var(--font-heading)" font-weight="700" fill="var(--text-primary)" font-size="20" id="chart-center-value">0.0</text>
+                    <text x="100" y="115" text-anchor="middle" font-family="var(--font-body)" font-weight="500" fill="var(--text-secondary)" font-size="10">TONS / YR</text>
+                  </svg>
+                </div>
+                <div class="chart-legend" id="donut-legend" aria-label="Breakdown Legend">
+                  <div class="legend-placeholder">Complete calculator inputs to populate.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Savings progress gauge card -->
+            <div class="card target-card">
+              <div class="card-header">
+                <h4 class="card-title">Target & Daily Savings</h4>
+                <span class="card-subtitle">Paris alignment index</span>
+              </div>
+              <div class="card-body target-body">
+                <div class="savings-summary">
+                  <div class="savings-stat">
+                    <span class="label">Today Saved</span>
+                    <span class="value" id="dashboard-daily-savings">0.0 kg</span>
+                  </div>
+                  <div class="savings-stat">
+                    <span class="label">Goal Scale</span>
+                    <span class="value" id="dashboard-target-reduction">20 %</span>
+                  </div>
+                </div>
+                
+                <div class="gauge-chart-container">
+                  <svg id="svg-gauge-chart" viewBox="0 0 200 120" width="100%" height="100%">
+                    <path d="M25,100 A75,75 0 0,1 175,100" fill="none" stroke="var(--border-color)" stroke-width="14" stroke-linecap="round" />
+                    <path id="svg-gauge-fill" d="M25,100 A75,75 0 0,1 175,100" fill="none" stroke="var(--emerald)" stroke-width="14" stroke-linecap="round" stroke-dasharray="235.6" stroke-dashoffset="235.6" />
+                    <text x="100" y="85" text-anchor="middle" font-family="var(--font-heading)" font-weight="700" fill="var(--text-primary)" font-size="24" id="gauge-center-value">0%</text>
+                    <text x="100" y="105" text-anchor="middle" font-family="var(--font-body)" fill="var(--text-secondary)" font-size="10">GOAL PROGRESS</text>
+                  </svg>
+                </div>
+                
+                <div class="target-message" id="target-achievement-message">
+                  Log ecological actions to advance toward your daily goal.
+                </div>
+              </div>
+            </div>
+
+            <!-- Achievements milestones card -->
+            <div class="card goals-card">
+              <div class="card-header">
+                <h4 class="card-title">Milestones & Awards</h4>
+                <span class="card-subtitle">Unlock badges with green habits</span>
+              </div>
+              <div class="card-body">
+                <div class="badges-grid" id="achievements-container" aria-label="Achievements list">
+                  <!-- Badges populated dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Dashboard quick logs card -->
+            <div class="card quick-actions-card">
+              <div class="card-header">
+                <h4 class="card-title">Quick Log Habit</h4>
+                <span class="card-subtitle">Tap daily items to record action</span>
+              </div>
+              <div class="card-body">
+                <div class="quick-actions-list" id="dashboard-quick-actions">
+                  <!-- Populated dynamically with actions -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- CALCULATOR WORKSPACE -->
+        <section class="app-view" id="view-calculator" role="tabpanel" aria-labelledby="tab-calculator" tabindex="0">
+          <div class="section-header">
+            <h3>Carbon Footprint Audit</h3>
+            <p class="section-desc">Estimate your yearly greenhouse impact in a personalized, step-by-step audit.</p>
+          </div>
+
+          <div class="calculator-container card">
+            <!-- Wizard Top Progress Bar -->
+            <div class="wizard-progress-wrapper" role="progressbar" aria-valuenow="7" aria-valuemin="0" aria-valuemax="100">
+              <div class="wizard-progress-bar">
+                <div class="wizard-progress-fill" id="wizard-progress-fill" style="width: 7.1%"></div>
+              </div>
+              <div class="wizard-progress-text">
+                <span id="wizard-step-info">Question 1 of 14</span>
+                <span id="wizard-category-info" class="text-sky">Transportation</span>
+              </div>
+            </div>
+
+            <form id="footprint-form" novalidate>
+              
+              <!-- QUESTION 1: Car Mileage -->
+              <div class="question-panel active" data-question="1" data-category="Transportation" data-icon="car">
+                <span class="category-badge"><i data-lucide="car"></i> Transportation</span>
+                <h4>How many miles do you drive your car annually?</h4>
+                <p class="question-desc">Fuel emissions shape a massive percentage of personal greenhouse gases.</p>
+                <div class="input-wrapper">
+                  <input type="number" id="input-car-miles" min="0" value="5000" class="form-control large-input" aria-describedby="car-miles-tip">
+                  <span class="input-unit">miles / year</span>
+                  <span class="form-tip" id="car-miles-tip">Average commuter drives around 10,000 miles/yr. Enter 0 if you don't own a vehicle.</span>
+                </div>
+              </div>
+
+              <!-- QUESTION 2: Vehicle Drive Fuel Type -->
+              <div class="question-panel" data-question="2" data-category="Transportation" data-icon="car">
+                <span class="category-badge"><i data-lucide="car"></i> Transportation</span>
+                <h4>What type of fuel does your vehicle use?</h4>
+                <p class="question-desc">Combustion engine designs determine emission rates per mile driven.</p>
+                
+                <div class="choice-cards-grid" data-select-id="select-fuel-type">
+                  <div class="choice-card selected" data-value="gasoline">
+                    <div class="card-icon"><i data-lucide="fuel"></i></div>
+                    <div class="card-title">Gasoline / Petrol</div>
+                    <div class="card-desc">Standard combustion engine</div>
+                  </div>
+                  <div class="choice-card" data-value="diesel">
+                    <div class="card-icon"><i data-lucide="flame"></i></div>
+                    <div class="card-title">Diesel</div>
+                    <div class="card-desc">Higher energy density fuel</div>
+                  </div>
+                  <div class="choice-card" data-value="hybrid">
+                    <div class="card-icon"><i data-lucide="battery-charging"></i></div>
+                    <div class="card-title">Hybrid</div>
+                    <div class="card-desc">Combustion + small electric battery</div>
+                  </div>
+                  <div class="choice-card" data-value="electric">
+                    <div class="card-icon"><i data-lucide="zap"></i></div>
+                    <div class="card-title">Electric (EV)</div>
+                    <div class="card-desc">Zero tailpipe emissions</div>
+                  </div>
+                  <div class="choice-card" data-value="none">
+                    <div class="card-icon"><i data-lucide="bike"></i></div>
+                    <div class="card-title">No Vehicle</div>
+                    <div class="card-desc">Rely on bike, transit, or walking</div>
+                  </div>
+                </div>
+
+                <select id="select-fuel-type" class="hidden-select">
+                  <option value="gasoline" selected>Gasoline / Petrol</option>
+                  <option value="diesel">Diesel</option>
+                  <option value="hybrid">Hybrid</option>
+                  <option value="electric">Electric (EV)</option>
+                  <option value="none">No vehicle</option>
+                </select>
+              </div>
+
+              <!-- QUESTION 3: Public Transit Hours -->
+              <div class="question-panel" data-question="3" data-category="Transportation" data-icon="bus">
+                <span class="category-badge"><i data-lucide="bus"></i> Transportation</span>
+                <h4>How many hours per week do you use public transit?</h4>
+                <p class="question-desc">Buses, subways, and streetcars transport people efficiently with less carbon per capita.</p>
+                <div class="input-wrapper">
+                  <input type="number" id="input-transit-hours" min="0" value="2" class="form-control large-input" aria-describedby="transit-hours-tip">
+                  <span class="input-unit">hours / week</span>
+                  <span class="form-tip" id="transit-hours-tip">Include subways, commuter rail, trains, and city buses.</span>
+                </div>
+              </div>
+
+              <!-- QUESTION 4: Short Flights -->
+              <div class="question-panel" data-question="4" data-category="Transportation" data-icon="plane">
+                <span class="category-badge"><i data-lucide="plane"></i> Transportation</span>
+                <h4>How many short-haul roundtrip flights do you take yearly?</h4>
+                <p class="question-desc">Flights under 3 hours. Frequent short takeoffs burn disproportionate amounts of fuel.</p>
+                <div class="input-wrapper">
+                  <input type="number" id="input-flights-short" min="0" value="1" class="form-control large-input">
+                  <span class="input-unit">roundtrips / year</span>
+                </div>
+              </div>
+
+              <!-- QUESTION 5: Long Flights -->
+              <div class="question-panel" data-question="5" data-category="Transportation" data-icon="plane">
+                <span class="category-badge"><i data-lucide="plane"></i> Transportation</span>
+                <h4>How many long-haul roundtrip flights do you take yearly?</h4>
+                <p class="question-desc">Flights over 3 hours. Cruising across ocean basins generates massive carbon emissions.</p>
+                <div class="input-wrapper">
+                  <input type="number" id="input-flights-long" min="0" value="0" class="form-control large-input">
+                  <span class="input-unit">roundtrips / year</span>
+                </div>
+              </div>
+
+              <!-- QUESTION 6: Electric Bill -->
+              <div class="question-panel" data-question="6" data-category="Energy Utilities" data-icon="zap">
+                <span class="category-badge"><i data-lucide="zap"></i> Energy Utilities</span>
+                <h4>What is your average monthly electricity bill?</h4>
+                <p class="question-desc">Calculates your annual power draw in kilowatt-hours based on typical rates.</p>
+                <div class="input-wrapper">
+                  <span class="input-prefix">$</span>
+                  <input type="number" id="input-electricity" min="0" value="80" class="form-control large-input" aria-describedby="electricity-tip">
+                  <span class="input-unit">/ month</span>
+                  <span class="form-tip" id="electricity-tip">Typical average is around $80 to $120 depending on region.</span>
+                </div>
+              </div>
+
+              <!-- QUESTION 7: Clean Energy Share -->
+              <div class="question-panel" data-question="7" data-category="Energy Utilities" data-icon="sun">
+                <span class="category-badge"><i data-lucide="sun"></i> Energy Utilities</span>
+                <h4>What percentage of your power is renewable clean energy?</h4>
+                <p class="question-desc">Solar panels, wind-energy utility contracts, or clean municipal grids.</p>
+                <div class="input-wrapper">
+                  <input type="number" id="input-clean-energy" min="0" max="100" value="0" class="form-control large-input" aria-describedby="clean-energy-tip">
+                  <span class="input-unit">% renewable</span>
+                  <span class="form-tip" id="clean-energy-tip">Enter 0 if on standard utility fossil fuels grids.</span>
+                </div>
+              </div>
+
+              <!-- QUESTION 8: Gas Bill -->
+              <div class="question-panel" data-question="8" data-category="Energy Utilities" data-icon="flame">
+                <span class="category-badge"><i data-lucide="flame"></i> Energy Utilities</span>
+                <h4>What is your average monthly gas heating bill?</h4>
+                <p class="question-desc">Covers boilers, gas fireplaces, stoves, and furnaces.</p>
+                <div class="input-wrapper">
+                  <span class="input-prefix">$</span>
+                  <input type="number" id="input-gas" min="0" value="40" class="form-control large-input" aria-describedby="gas-tip">
+                  <span class="input-unit">/ month</span>
+                </div>
+              </div>
+
+              <!-- QUESTION 9: Residential Size -->
+              <div class="question-panel" data-question="9" data-category="Energy Utilities" data-icon="home">
+                <span class="category-badge"><i data-lucide="home"></i> Energy Utilities</span>
+                <h4>What is the size of your residence?</h4>
+                <p class="question-desc">Larger physical spaces demand significantly more electricity and thermal heating.</p>
+                
+                <div class="choice-cards-grid" data-select-id="select-home-size">
+                  <div class="choice-card" data-value="apartment">
+                    <div class="card-icon"><i data-lucide="building"></i></div>
+                    <div class="card-title">Apartment</div>
+                    <div class="card-desc">Efficient, shared insulation</div>
+                  </div>
+                  <div class="choice-card" data-value="townhouse">
+                    <div class="card-icon"><i data-lucide="home"></i></div>
+                    <div class="card-title">Townhouse</div>
+                    <div class="card-desc">Multi-floor, partial shared walls</div>
+                  </div>
+                  <div class="choice-card selected" data-value="medium-house">
+                    <div class="card-icon"><i data-lucide="home"></i></div>
+                    <div class="card-title">Medium House</div>
+                    <div class="card-desc">Standard family detached home</div>
+                  </div>
+                  <div class="choice-card" data-value="large-house">
+                    <div class="card-icon"><i data-lucide="warehouse"></i></div>
+                    <div class="card-title">Large House</div>
+                    <div class="card-desc">Expanded footprint, heavy thermal demand</div>
+                  </div>
+                </div>
+
+                <select id="select-home-size" class="hidden-select">
+                  <option value="apartment">Apartment</option>
+                  <option value="townhouse">Townhouse</option>
+                  <option value="medium-house" selected>Medium House</option>
+                  <option value="large-house">Large House</option>
+                </select>
+              </div>
+
+              <!-- QUESTION 10: Diet Sourcing -->
+              <div class="question-panel" data-question="10" data-category="Dietary Habits" data-icon="salad">
+                <span class="category-badge"><i data-lucide="salad"></i> Dietary Habits</span>
+                <h4>What are your primary dietary habits?</h4>
+                <p class="question-desc">Industrial animal farming (meat/dairy) is a massive contributor to global methane.</p>
+                
+                <div class="choice-cards-grid" data-select-id="select-diet">
+                  <div class="choice-card" data-value="meat-heavy">
+                    <div class="card-icon"><i data-lucide="drumstick"></i></div>
+                    <div class="card-title">High Meat</div>
+                    <div class="card-desc">Frequently consume beef, lamb, pork</div>
+                  </div>
+                  <div class="choice-card selected" data-value="meat-average">
+                    <div class="card-icon"><i data-lucide="egg"></i></div>
+                    <div class="card-title">Moderate Meat</div>
+                    <div class="card-desc">Mixed animal products and vegetables</div>
+                  </div>
+                  <div class="choice-card" data-value="meat-light">
+                    <div class="card-icon"><i data-lucide="fish"></i></div>
+                    <div class="card-title">Low Meat</div>
+                    <div class="card-desc">Poultry, fish mostly, red meat rarely</div>
+                  </div>
+                  <div class="choice-card" data-value="vegetarian">
+                    <div class="card-icon"><i data-lucide="carrot"></i></div>
+                    <div class="card-title">Vegetarian</div>
+                    <div class="card-desc">No meat or fish (dairy/eggs okay)</div>
+                  </div>
+                  <div class="choice-card" data-value="vegan">
+                    <div class="card-icon"><i data-lucide="leaf"></i></div>
+                    <div class="card-title">Vegan</div>
+                    <div class="card-desc">Strictly plant-based nutrition</div>
+                  </div>
+                </div>
+
+                <select id="select-diet" class="hidden-select">
+                  <option value="meat-heavy">High Meat Consumer</option>
+                  <option value="meat-average" selected>Moderate Meat Consumer</option>
+                  <option value="meat-light">Low Meat Consumer</option>
+                  <option value="vegetarian">Vegetarian</option>
+                  <option value="vegan">Vegan</option>
+                </select>
+              </div>
+
+              <!-- QUESTION 11: Food Waste -->
+              <div class="question-panel" data-question="11" data-category="Dietary Habits" data-icon="trash-2">
+                <span class="category-badge"><i data-lucide="trash-2"></i> Dietary Habits</span>
+                <h4>How much food goes to waste in your home?</h4>
+                <p class="question-desc">Organic waste in landfills decomposes anaerobically, generating methane.</p>
+                
+                <div class="choice-cards-grid" data-select-id="select-food-waste">
+                  <div class="choice-card" data-value="low">
+                    <div class="card-icon"><i data-lucide="heart"></i></div>
+                    <div class="card-title">Very Low</div>
+                    <div class="card-desc">Eat leftovers, organize pantry, compost</div>
+                  </div>
+                  <div class="choice-card selected" data-value="medium">
+                    <div class="card-icon"><i data-lucide="scale"></i></div>
+                    <div class="card-title">Average</div>
+                    <div class="card-desc">Occasionally discard spoiled ingredients</div>
+                  </div>
+                  <div class="choice-card" data-value="high">
+                    <div class="card-icon"><i data-lucide="alert-triangle"></i></div>
+                    <div class="card-title">Above Average</div>
+                    <div class="card-desc">Frequently throw away unused leftovers</div>
+                  </div>
+                </div>
+
+                <select id="select-food-waste" class="hidden-select">
+                  <option value="low">Very Low</option>
+                  <option value="medium" selected>Average</option>
+                  <option value="high">Above Average</option>
+                </select>
+              </div>
+
+              <!-- QUESTION 12: Local Food -->
+              <div class="question-panel" data-question="12" data-category="Dietary Habits" data-icon="globe">
+                <span class="category-badge"><i data-lucide="globe"></i> Dietary Habits</span>
+                <h4>Do you prioritize seasonal and locally sourced foods?</h4>
+                <p class="question-desc">Long freight transit vectors (food miles) carry embedded fuel carbon.</p>
+                
+                <div class="choice-cards-grid" data-select-id="select-local-food">
+                  <div class="choice-card" data-value="mostly">
+                    <div class="card-icon"><i data-lucide="map-pin"></i></div>
+                    <div class="card-title">Mostly Local</div>
+                    <div class="card-desc">Farmer's markets, co-ops, regional produce</div>
+                  </div>
+                  <div class="choice-card selected" data-value="sometimes">
+                    <div class="card-icon"><i data-lucide="store"></i></div>
+                    <div class="card-title">Average Mix</div>
+                    <div class="card-desc">Supermarket products, some imported items</div>
+                  </div>
+                  <div class="choice-card" data-value="rarely">
+                    <div class="card-icon"><i data-lucide="ship"></i></div>
+                    <div class="card-title">Rarely Local</div>
+                    <div class="card-desc">Heavy imports, out-of-season products</div>
+                  </div>
+                </div>
+
+                <select id="select-local-food" class="hidden-select">
+                  <option value="mostly">Mostly Local</option>
+                  <option value="sometimes" selected>Average Mix</option>
+                  <option value="rarely">Rarely Local</option>
+                </select>
+              </div>
+
+              <!-- QUESTION 13: Shopping Habits -->
+              <div class="question-panel" data-question="13" data-category="Shopping & Waste" data-icon="shopping-bag">
+                <span class="category-badge"><i data-lucide="shopping-bag"></i> Shopping & Waste</span>
+                <h4>What are your retail shopping habits?</h4>
+                <p class="question-desc">Manufactured products require fuel resources for raw extraction, assembly, and shipping.</p>
+                
+                <div class="choice-cards-grid" data-select-id="select-shopping">
+                  <div class="choice-card" data-value="minimalist">
+                    <div class="card-icon"><i data-lucide="feather"></i></div>
+                    <div class="card-title">Minimalist</div>
+                    <div class="card-desc">Buy only essentials, second-hand first</div>
+                  </div>
+                  <div class="choice-card selected" data-value="average">
+                    <div class="card-icon"><i data-lucide="package"></i></div>
+                    <div class="card-title">Average</div>
+                    <div class="card-desc">Periodic clothing, household goods purchases</div>
+                  </div>
+                  <div class="choice-card" data-value="shopper">
+                    <div class="card-icon"><i data-lucide="shopping-cart"></i></div>
+                    <div class="card-title">Frequent Shopper</div>
+                    <div class="card-desc">Frequent electronics, fast fashion, new items</div>
+                  </div>
+                </div>
+
+                <select id="select-shopping" class="hidden-select">
+                  <option value="minimalist">Minimalist</option>
+                  <option value="average" selected>Average</option>
+                  <option value="shopper">Frequent Shopper</option>
+                </select>
+              </div>
+
+              <!-- QUESTION 14: Recycling Habits -->
+              <div class="question-panel" data-question="14" data-category="Shopping & Waste" data-icon="refresh-cw">
+                <span class="category-badge"><i data-lucide="refresh-cw"></i> Shopping & Waste</span>
+                <h4>What is your standard recycling routine?</h4>
+                <p class="question-desc">Recycling offsets massive primary production processing costs for plastics and metals.</p>
+                
+                <div class="choice-cards-grid" data-select-id="select-recycling">
+                  <div class="choice-card" data-value="strict">
+                    <div class="card-icon"><i data-lucide="check-square"></i></div>
+                    <div class="card-title">Strict Sorting</div>
+                    <div class="card-desc">Recycle all glass, metal, paper, compost scraps</div>
+                  </div>
+                  <div class="choice-card selected" data-value="average">
+                    <div class="card-icon"><i data-lucide="plus-square"></i></div>
+                    <div class="card-title">Average Routine</div>
+                    <div class="card-desc">Sort bottles, cans, and paper mostly</div>
+                  </div>
+                  <div class="choice-card" data-value="none">
+                    <div class="card-icon"><i data-lucide="x-square"></i></div>
+                    <div class="card-title">No Recycling</div>
+                    <div class="card-desc">Discard everything into unified landfill trash</div>
+                  </div>
+                </div>
+
+                <select id="select-recycling" class="hidden-select">
+                  <option value="strict">Strict</option>
+                  <option value="average" selected>Average</option>
+                  <option value="none">No recycling</option>
+                </select>
+              </div>
+
+              <!-- Questionnaire Nav buttons -->
+              <div class="calc-nav-buttons">
+                <button type="button" class="btn btn-secondary" id="btn-calc-prev" disabled>
+                  <i data-lucide="arrow-left"></i> Previous
+                </button>
+                <button type="button" class="btn btn-secondary" id="btn-calc-skip">
+                  Skip Question <i data-lucide="skip-forward"></i>
+                </button>
+                <button type="button" class="btn btn-primary" id="btn-calc-next">
+                  Next <i data-lucide="arrow-right"></i>
+                </button>
+                <button type="submit" class="btn btn-emerald hidden" id="btn-calc-submit">
+                  <i data-lucide="check"></i> Calculate Footprint
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- ACTION LOGGER PANEL -->
+        <section class="app-view" id="view-logger" role="tabpanel" aria-labelledby="tab-logger" tabindex="0">
+          <div class="section-header">
+            <h3>Habit Logger Dock</h3>
+            <p class="section-desc">Record everyday climate actions to log points and subtract carbon.</p>
+          </div>
+
+          <div class="logger-layout">
+            <!-- Checklist Card -->
+            <div class="card logger-card">
+              <div class="card-header">
+                <h4 class="card-title">Daily Checklist</h4>
+                <span class="card-subtitle">Select green achievements completed today</span>
+              </div>
+              <div class="card-body">
+                <ul class="action-list-ul" id="actions-checkbox-list" aria-label="Logger Checklist">
+                  <!-- Checklist checkboxes -->
+                </ul>
+              </div>
+            </div>
+
+            <!-- Custom Log Form Card -->
+            <div class="card custom-log-card">
+              <div class="card-header">
+                <h4 class="card-title">Record Custom Activity</h4>
+                <span class="card-subtitle">Log custom carbon savings actions</span>
+              </div>
+              <div class="card-body">
+                <form id="custom-action-form" class="custom-action-form" novalidate>
+                  <div class="form-group">
+                    <label for="input-custom-desc">Action Name</label>
+                    <input type="text" id="input-custom-desc" placeholder="e.g., Swapped standard lightbulbs for LEDs" class="form-control" required>
+                  </div>
+                  
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="select-custom-cat">Impact Sector</label>
+                      <select id="select-custom-cat" class="form-control">
+                        <option value="transportation">Transportation</option>
+                        <option value="energy">Home Utility</option>
+                        <option value="food">Dietary Habit</option>
+                        <option value="consumption">Shopping/Waste</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="select-custom-impact">Estimated Savings</label>
+                      <select id="select-custom-impact" class="form-control">
+                        <option value="low">Low Savings (1 kg saved)</option>
+                        <option value="medium" selected>Medium Savings (3 kg saved)</option>
+                        <option value="high">High Savings (7 kg saved)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary btn-block">
+                    <i data-lucide="plus"></i> Add Custom Action
+                  </button>
+                </form>
+
+                <!-- Custom Logs history list -->
+                <div class="custom-history-section">
+                  <h5>Logged Custom Actions Today</h5>
+                  <ul class="custom-logs-ul" id="custom-logs-history">
+                    <li class="no-logs-text">No custom logs saved today.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- FLOATING CHATBOT ASSISTANT PANEL -->
+    <div class="assistant-chat-panel" id="assistant-chat-window">
+      <div class="assistant-header">
+        <div class="assistant-avatar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10S2 17.523 2 12a10 10 0 0 1 10-10z"/>
+            <path d="M12 6v6l4 2"/>
+            <circle cx="12" cy="12" r="3" fill="var(--emerald-light)"/>
+          </svg>
+        </div>
+        <div class="assistant-title-block">
+          <h5>EcoSphera Coordinator</h5>
+          <span class="status-indicator online">Analyzing Profile</span>
+        </div>
+        <button class="icon-btn close-chat-btn" id="btn-close-chat" aria-label="Minimize Chat">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div class="chat-area" id="chat-messages" aria-live="polite">
+        <div class="chat-bubble bot">
+          <div class="bubble-content">
+            Greetings! I am <strong>EcoSphera</strong>, your smart climate coordinator. Ask me questions about saving carbon, or tap a quick prompt below to start.
+          </div>
+          <span class="bubble-time">Active Now</span>
+        </div>
+      </div>
+
+      <!-- Quick recommendation prompt buttons -->
+      <div class="quick-prompts-container" aria-label="Suggested Prompts">
+        <button class="quick-prompt-btn" data-prompt="Analyze my footprint">
+          <i data-lucide="bar-chart-2"></i> Audit my emissions
+        </button>
+        <button class="quick-prompt-btn" data-prompt="Give me a weekly plan">
+          <i data-lucide="calendar"></i> Weekly reduction plan
+        </button>
+        <button class="quick-prompt-btn" data-prompt="What is red meat's impact?">
+          <i data-lucide="leaf"></i> Red meat's impact
+        </button>
+      </div>
+
+      <div class="chat-input-bar">
+        <form id="chat-form" novalidate>
+          <label for="input-chat-message" class="sr-only">Ask EcoSphera...</label>
+          <input type="text" id="input-chat-message" class="chat-input" placeholder="Ask a question..." autocomplete="off" required>
+          <button type="submit" class="chat-send-btn" aria-label="Send message">
+            <i data-lucide="send"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Floating Chat Trigger Bubble -->
+    <button class="floating-assistant-trigger" id="btn-assistant-trigger" aria-label="Open EcoSphera Climate Assistant" title="Open EcoSphera Assistant">
+      <div class="pulse-ring"></div>
+      <i data-lucide="sparkles"></i>
+      <span class="bubble-badge">Tip</span>
+    </button>
+
+  </div>
+
+  <!-- CUSTOM GLASSMORPHIC MODAL DIALOG -->
+  <div class="custom-modal hidden" id="eco-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <h4 id="modal-title">Reset All Data?</h4>
+      <p id="modal-message">Are you sure you want to reset all EcoSphere data? This will clear your footprint audit and daily action logs.</p>
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" id="btn-modal-cancel">Cancel</button>
+        <button class="btn btn-emerald" id="btn-modal-confirm">Confirm Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- App scripts -->
+  <script src="calculator.js" type="module"></script>
+  <script src="charts.js" type="module"></script>
+  <script src="assistant.js" type="module"></script>
+  <script src="zentangle.js" type="module"></script>
+  <script src="app.js" type="module"></script>
+  
+  <!-- Diagnostic test runner -->
+  <script src="test.js" type="module"></script>
+</body>
+</html>
+
