@@ -4,11 +4,6 @@ EcoSphere is a premium, interactive cybernetic eco-dashboard that models lifesty
 
 ## Key Features
 
-### Centered Rotating 3D Earth
-A high-performance HTML5 Canvas-rendered wireframe globe rotates slowly in the background of the landing screen. It projects longitude and latitude lines along with continental coordinate points in three dimensions, applying back-face depth lines to create a holographic HUD aesthetic.
-
-### Interactive Grid Footprint Map
-An interactive Canvas-based grid footprint map is featured in the main landing hero block. It maps coordinate boundaries of a human foot print and dynamically shades grid cells according to mathematical pressure levels. Shaded values shift dynamically with changes in calculated carbon totals.
 
 ### Step-by-Step Carbon Audit
 A multi-step audit wizard evaluates ecological impact across four sectors:
