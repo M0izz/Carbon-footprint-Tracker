@@ -3,7 +3,7 @@
  * Manages global state, persistent storage, routing, and event handling.
  */
 
-import { calculateFootprint, validateStep } from './calculator.js';
+import { calculateFootprint, validateStep, REGIONAL_FACTORS } from './calculator.js';
 import { updateDonutChart, updateGaugeChart } from './charts.js';
 import { generateChatbotResponse, getContextualInsight } from './assistant.js';
 // Zentangle module is no longer imported as zentangles are replaced by grid footprints.
@@ -18,14 +18,15 @@ let state = {
   ecoPoints: 0,
   calculatorStep: 1,
   calculatorInputs: {
+    region: 'IN',
     carMiles: 5000,
     fuelType: 'gasoline',
     transitHours: 2,
     shortFlights: 1,
     longFlights: 0,
-    electricityBill: 80,
+    electricityBill: 1200,
     cleanEnergyShare: 0,
-    gasBill: 40,
+    gasBill: 500,
     homeSize: 'medium-house',
     dietType: 'meat-average',
     foodWaste: 'medium',
@@ -270,7 +271,9 @@ function renderStepPanel() {
 }
 
 function getFormInputs() {
+  const selectReg = document.getElementById('select-region');
   return {
+    region: selectReg ? selectReg.value : 'IN',
     carMiles: document.getElementById('input-car-miles').value,
     fuelType: document.getElementById('select-fuel-type').value,
     transitHours: document.getElementById('input-transit-hours').value,
@@ -290,14 +293,18 @@ function getFormInputs() {
 
 function setFormInputs(inputs) {
   if (!inputs) return;
+  
+  const regionVal = inputs.region ?? 'IN';
+  syncRegionUI(regionVal);
+
   document.getElementById('input-car-miles').value = inputs.carMiles ?? 5000;
   document.getElementById('select-fuel-type').value = inputs.fuelType ?? 'gasoline';
   document.getElementById('input-transit-hours').value = inputs.transitHours ?? 2;
   document.getElementById('input-flights-short').value = inputs.shortFlights ?? 1;
   document.getElementById('input-flights-long').value = inputs.longFlights ?? 0;
-  document.getElementById('input-electricity').value = inputs.electricityBill ?? 80;
+  document.getElementById('input-electricity').value = inputs.electricityBill ?? 1200;
   document.getElementById('input-clean-energy').value = inputs.cleanEnergyShare ?? 0;
-  document.getElementById('input-gas').value = inputs.gasBill ?? 40;
+  document.getElementById('input-gas').value = inputs.gasBill ?? 500;
   document.getElementById('select-home-size').value = inputs.homeSize ?? 'medium-house';
   document.getElementById('select-diet').value = inputs.dietType ?? 'meat-average';
   document.getElementById('select-food-waste').value = inputs.foodWaste ?? 'medium';
@@ -398,6 +405,8 @@ function handleCalcPrev() {
 
 function handleCalcSkip() {
   const currentInputs = getFormInputs();
+  const region = currentInputs.region || 'IN';
+  const rFactors = REGIONAL_FACTORS[region] || REGIONAL_FACTORS.IN;
   
   // Set default values for the skipped question if it is empty/unset
   const defaults = {
@@ -406,9 +415,9 @@ function handleCalcSkip() {
     3: { transitHours: 2 },
     4: { shortFlights: 1 },
     5: { longFlights: 0 },
-    6: { electricityBill: 80 },
+    6: { electricityBill: rFactors.avgElectricityBill },
     7: { cleanEnergyShare: 0 },
-    8: { gasBill: 40 },
+    8: { gasBill: rFactors.avgGasBill },
     9: { homeSize: 'medium-house' },
     10: { dietType: 'meat-average' },
     11: { foodWaste: 'medium' },
@@ -487,6 +496,19 @@ function handleFormSubmit(e) {
   state.footprint = calculateFootprint(state.calculatorInputs);
   
   unlockAchievement('first_step');
+
+  // Reset simulation toggles on audit submit
+  const toggles = [
+    'sim-toggle-ev',
+    'sim-toggle-clean',
+    'sim-toggle-vegan',
+    'sim-toggle-recycle',
+    'sim-toggle-flights'
+  ];
+  toggles.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.checked = false;
+  });
   
   saveToStorage();
   updateUI();
@@ -789,6 +811,9 @@ function updateUI() {
 
   // Update dashboard equivalencies and comparative benchmarks
   updateDashboardEquivalencies(state.footprint.total);
+
+  // Refresh sandbox simulation outputs
+  updateSimulation();
 
   // Update streak display and dots timeline
   calculateStreak();
@@ -1266,6 +1291,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollFrequencyWave();
   initCyberLoader();
   initPremiumTitleAnimations();
+
+  // --- Initialize Region Selector, Carbon Clock & Simulation Sandbox ---
+  initRegionSelector();
+  initCarbonClock();
+  initSimulationListeners();
 });
 
 // ======================================================================
@@ -1895,6 +1925,53 @@ function updateDashboardEquivalencies(totalFootprint) {
   const percent = Math.min(100, Math.max(3, (totalFootprint / 12) * 100));
   userMarker.style.left = `${percent}%`;
   userVal.textContent = `${totalFootprint.toFixed(1)}t`;
+
+  // Update Offset Calculator panel
+  const offsetScoreHighlight = document.getElementById('offset-score-highlight');
+  if (offsetScoreHighlight) {
+    offsetScoreHighlight.textContent = `${totalFootprint.toFixed(1)}t`;
+  }
+  
+  const offsetValCar = document.getElementById('offset-val-car');
+  const offsetValTrees = document.getElementById('offset-val-trees');
+  const offsetValVegan = document.getElementById('offset-val-vegan');
+  
+  if (totalFootprint === 0) {
+    if (offsetValCar) offsetValCar.textContent = '-- months';
+    if (offsetValTrees) offsetValTrees.textContent = '-- trees';
+    if (offsetValVegan) offsetValVegan.textContent = '-- months';
+  } else {
+    // 1 ton = car-free for 1 / 0.38 months (~2.63 months)
+    const carMonths = totalFootprint / 0.38;
+    // 1 ton = vegan for 1 / 0.116 months (~8.62 months)
+    const veganMonths = totalFootprint / 0.116;
+    // 1 ton = plant 1 / 0.02 trees (~50 trees)
+    const treesToPlant = totalFootprint / 0.02;
+    
+    if (offsetValCar) {
+      if (carMonths >= 12) {
+        const yrs = Math.floor(carMonths / 12);
+        const mos = Math.round(carMonths % 12);
+        offsetValCar.textContent = `Go car-free for ${yrs} yr${yrs > 1 ? 's' : ''} ${mos > 0 ? `and ${mos} mo${mos > 1 ? 's' : ''}` : ''}`;
+      } else {
+        offsetValCar.textContent = `Go car-free for ${Math.max(1, Math.round(carMonths))} month${Math.round(carMonths) > 1 ? 's' : ''}`;
+      }
+    }
+    
+    if (offsetValTrees) {
+      offsetValTrees.textContent = `Plant ${Math.round(treesToPlant).toLocaleString()} native trees`;
+    }
+    
+    if (offsetValVegan) {
+      if (veganMonths >= 12) {
+        const yrs = Math.floor(veganMonths / 12);
+        const mos = Math.round(veganMonths % 12);
+        offsetValVegan.textContent = `Adopt a vegan diet for ${yrs} yr${yrs > 1 ? 's' : ''} ${mos > 0 ? `and ${mos} mo${mos > 1 ? 's' : ''}` : ''}`;
+      } else {
+        offsetValVegan.textContent = `Adopt a vegan diet for ${Math.max(1, Math.round(veganMonths))} month${Math.round(veganMonths) > 1 ? 's' : ''}`;
+      }
+    }
+  }
 }
 
 function exportCarbonPassport() {
@@ -2030,3 +2107,180 @@ function exportCarbonPassport() {
   a.click();
   document.body.removeChild(a);
 }
+
+// --- REGIONAL LOCALIZATION HELPERS ---
+function syncRegionUI(region) {
+  const selectRegion = document.getElementById('select-region');
+  if (selectRegion) selectRegion.value = region;
+  
+  const factors = REGIONAL_FACTORS[region] || REGIONAL_FACTORS.IN;
+  
+  const elecPrefix = document.getElementById('electricity-prefix');
+  const gasPrefix = document.getElementById('gas-prefix');
+  if (elecPrefix) elecPrefix.textContent = factors.currency;
+  if (gasPrefix) gasPrefix.textContent = factors.currency;
+  
+  const elecTip = document.getElementById('electricity-tip');
+  if (elecTip) {
+    elecTip.textContent = `Typical average is around ${factors.currency}${factors.avgElectricityBill.toLocaleString()} depending on region.`;
+  }
+}
+
+function initRegionSelector() {
+  const selectRegion = document.getElementById('select-region');
+  if (!selectRegion) return;
+  
+  selectRegion.addEventListener('change', () => {
+    const newRegion = selectRegion.value;
+    const oldRegion = state.calculatorInputs.region || 'IN';
+    
+    if (newRegion !== oldRegion) {
+      const oldFactors = REGIONAL_FACTORS[oldRegion] || REGIONAL_FACTORS.IN;
+      const newFactors = REGIONAL_FACTORS[newRegion] || REGIONAL_FACTORS.IN;
+      
+      // Update inputs if they are at the old region's defaults
+      const elecEl = document.getElementById('input-electricity');
+      const gasEl = document.getElementById('input-gas');
+      
+      if (elecEl) {
+        const val = parseFloat(elecEl.value);
+        if (isNaN(val) || val === oldFactors.avgElectricityBill) {
+          elecEl.value = newFactors.avgElectricityBill;
+        }
+      }
+      if (gasEl) {
+        const val = parseFloat(gasEl.value);
+        if (isNaN(val) || val === oldFactors.avgGasBill) {
+          gasEl.value = newFactors.avgGasBill;
+        }
+      }
+      
+      // Update currency labels and state
+      syncRegionUI(newRegion);
+      
+      state.calculatorInputs.region = newRegion;
+      state.calculatorInputs.electricityBill = elecEl ? elecEl.value : newFactors.avgElectricityBill;
+      state.calculatorInputs.gasBill = gasEl ? gasEl.value : newFactors.avgGasBill;
+      
+      // Re-run calculateFootprint if the user has already run it
+      if (state.footprint.total > 0) {
+        state.footprint = calculateFootprint(state.calculatorInputs);
+        updateUI();
+      }
+      
+      saveToStorage();
+    }
+  });
+}
+
+// --- REAL-TIME CARBON CLOCK ---
+function initCarbonClock() {
+  const globalYearEl = document.getElementById('global-co2-year');
+  const globalVisitEl = document.getElementById('global-co2-visit');
+  
+  if (!globalYearEl || !globalVisitEl) return;
+  
+  // Rate: 1,400 tons per second = 140 tons per 100ms
+  const EMISSION_RATE_PER_SEC = 1400; 
+  const INTERVAL_MS = 100;
+  const RATE_PER_TICK = EMISSION_RATE_PER_SEC * (INTERVAL_MS / 1000); // 140
+  
+  // Estimate global emissions since Jan 1st of the current year (based on ~37.1 billion tons/year)
+  const now = new Date();
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const msElapsed = now - startOfYear;
+  const secondsElapsed = msElapsed / 1000;
+  
+  // Approximate starting emissions for this exact millisecond of the year
+  let emissionsThisYear = secondsElapsed * EMISSION_RATE_PER_SEC;
+  let emissionsSinceVisit = 0;
+  
+  // Tick emissions
+  setInterval(() => {
+    emissionsThisYear += RATE_PER_TICK;
+    emissionsSinceVisit += RATE_PER_TICK;
+    
+    // Format numbers nicely: integers for annual, decimal for visit
+    globalYearEl.textContent = Math.round(emissionsThisYear).toLocaleString();
+    globalVisitEl.textContent = emissionsSinceVisit.toFixed(2);
+  }, INTERVAL_MS);
+}
+
+// --- WHAT-IF SIMULATION SANDBOX ---
+function updateSimulation() {
+  const toggleEV = document.getElementById('sim-toggle-ev');
+  const toggleClean = document.getElementById('sim-toggle-clean');
+  const toggleVegan = document.getElementById('sim-toggle-vegan');
+  const toggleRecycle = document.getElementById('sim-toggle-recycle');
+  const toggleFlights = document.getElementById('sim-toggle-flights');
+  
+  if (!toggleEV) return;
+  
+  // Clone current calculatorInputs
+  const simInputs = { ...state.calculatorInputs };
+  
+  // Apply overrides
+  if (toggleEV.checked) {
+    simInputs.fuelType = 'electric';
+  }
+  if (toggleClean.checked) {
+    simInputs.cleanEnergyShare = 100;
+  }
+  if (toggleVegan.checked) {
+    simInputs.dietType = 'vegan';
+  }
+  if (toggleRecycle.checked) {
+    simInputs.recyclingHabit = 'strict';
+  }
+  if (toggleFlights.checked) {
+    simInputs.shortFlights = 0;
+    simInputs.longFlights = 0;
+  }
+  
+  // Calculate simulated footprint
+  const simFootprint = calculateFootprint(simInputs);
+  
+  // Update simulated text displays
+  const simTotalEl = document.getElementById('sim-total-footprint');
+  const simSavingsEl = document.getElementById('sim-footprint-savings');
+  
+  if (state.footprint.total === 0) {
+    if (simTotalEl) simTotalEl.textContent = '--t';
+    if (simSavingsEl) simSavingsEl.textContent = '--t (0%)';
+    return;
+  }
+  
+  if (simTotalEl) simTotalEl.textContent = `${simFootprint.total.toFixed(1)}t`;
+  
+  const saved = state.footprint.total - simFootprint.total;
+  const savedPercent = state.footprint.total > 0 ? (saved / state.footprint.total) * 100 : 0;
+  
+  if (simSavingsEl) {
+    simSavingsEl.textContent = `${saved.toFixed(1)}t (${Math.round(savedPercent)}% saved)`;
+  }
+  
+  // Morph donut chart real-time if any simulation checkbox is checked
+  const isAnySimActive = toggleEV.checked || toggleClean.checked || toggleVegan.checked || toggleRecycle.checked || toggleFlights.checked;
+  if (isAnySimActive) {
+    updateDonutChart(simFootprint);
+  } else {
+    updateDonutChart(state.footprint);
+  }
+}
+
+function initSimulationListeners() {
+  const toggles = [
+    'sim-toggle-ev',
+    'sim-toggle-clean',
+    'sim-toggle-vegan',
+    'sim-toggle-recycle',
+    'sim-toggle-flights'
+  ];
+  toggles.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('change', updateSimulation);
+    }
+  });
+}
+

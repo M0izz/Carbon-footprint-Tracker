@@ -4,6 +4,7 @@
  */
 
 // CONSTANTS: Emission factors in kg CO2e
+// CONSTANTS: Emission factors in kg CO2e
 export const EMISSION_FACTORS = {
   // Transport
   carFuel: {
@@ -17,11 +18,12 @@ export const EMISSION_FACTORS = {
   flightShort: 225,     // kg per round trip (short haul ~1000mi)
   flightLong: 900,      // kg per round trip (long haul ~5000mi)
 
-  // Energy
-  kwhCost: 0.15,        // $ average cost per kWh
-  co2PerKwh: 0.38,      // kg CO2 per kWh grid average
-  thermCost: 1.10,      // $ average cost per therm of gas
-  co2PerTherm: 5.3,     // kg CO2 per therm of gas
+  // Default fallback constants (US-centric, matching tests)
+  kwhCost: 0.15,
+  co2PerKwh: 0.38,
+  thermCost: 1.10,
+  co2PerTherm: 5.3,
+  
   homeSizeBase: {
     apartment: 500,     // kg base emissions/yr
     townhouse: 800,
@@ -61,6 +63,46 @@ export const EMISSION_FACTORS = {
   }
 };
 
+// Regional utility metrics (tariffs & grid carbon intensities)
+export const REGIONAL_FACTORS = {
+  US: {
+    currency: '$',
+    kwhCost: 0.15,       // $0.15/kWh
+    co2PerKwh: 0.38,     // 0.38 kg CO2/kWh
+    thermCost: 1.10,     // $1.10/therm
+    co2PerTherm: 5.3,    // 5.3 kg CO2/therm
+    avgElectricityBill: 80,
+    avgGasBill: 40
+  },
+  IN: {
+    currency: '₹',
+    kwhCost: 7.0,        // ₹7.00/kWh average
+    co2PerKwh: 0.72,     // 0.72 kg CO2/kWh (coal-heavy grid intensity)
+    thermCost: 45.0,     // ₹45.00/SCM piped gas
+    co2PerTherm: 2.1,    // 2.1 kg CO2/SCM
+    avgElectricityBill: 1200,
+    avgGasBill: 500
+  },
+  UK: {
+    currency: '£',
+    kwhCost: 0.28,       // £0.28/kWh
+    co2PerKwh: 0.15,     // 0.15 kg CO2/kWh (cleaner wind/solar mix)
+    thermCost: 0.08,     // £0.08/kWh equivalent of gas
+    co2PerTherm: 0.20,   // 0.20 kg CO2/kWh
+    avgElectricityBill: 120,
+    avgGasBill: 80
+  },
+  EU: {
+    currency: '€',
+    kwhCost: 0.25,       // €0.25/kWh
+    co2PerKwh: 0.20,     // 0.20 kg CO2/kWh average
+    thermCost: 0.12,     // €0.12/kWh equivalent of gas
+    co2PerTherm: 0.20,   // 0.20 kg CO2/kWh
+    avgElectricityBill: 100,
+    avgGasBill: 70
+  }
+};
+
 /**
  * Calculates the carbon footprint for each category.
  * Returns values in metric tons (1 ton = 1000 kg).
@@ -88,15 +130,22 @@ export function calculateFootprint(inputs) {
   const gasBill = Math.max(0, parseFloat(inputs.gasBill) || 0);
   const cleanEnergyPct = Math.min(100, Math.max(0, parseFloat(inputs.cleanEnergyShare) || 0));
   const homeSize = inputs.homeSize || 'medium-house';
+  const region = inputs.region || 'US';
+
+  const rFactors = REGIONAL_FACTORS[region] || REGIONAL_FACTORS.US;
+  const kwhCost = rFactors.kwhCost;
+  const co2PerKwh = rFactors.co2PerKwh;
+  const thermCost = rFactors.thermCost;
+  const co2PerTherm = rFactors.co2PerTherm;
 
   // Electricity kWh = monthly bill / cost per kWh. Annually: kWh * 12.
-  const annualKwh = (electricBill / EMISSION_FACTORS.kwhCost) * 12;
+  const annualKwh = (electricBill / kwhCost) * 12;
   const dirtyShare = 1 - (cleanEnergyPct / 100);
-  const electricityCO2 = annualKwh * EMISSION_FACTORS.co2PerKwh * dirtyShare;
+  const electricityCO2 = annualKwh * co2PerKwh * dirtyShare;
 
   // Gas therms = monthly bill / cost per therm. Annually: therms * 12.
-  const annualTherms = (gasBill / EMISSION_FACTORS.thermCost) * 12;
-  const gasCO2 = annualTherms * EMISSION_FACTORS.co2PerTherm;
+  const annualTherms = (gasBill / thermCost) * 12;
+  const gasCO2 = annualTherms * co2PerTherm;
 
   const homeSizeCO2 = EMISSION_FACTORS.homeSizeBase[homeSize] || 1200;
   const energyTotal = electricityCO2 + gasCO2 + homeSizeCO2;

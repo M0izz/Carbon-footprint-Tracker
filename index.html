@@ -97,6 +97,25 @@
     <!-- SECTION 1: HERO CONTAINER -->
     <div class="hero-container" id="hero-section">
       <div class="hero-text-block">
+        <!-- Real-Time Carbon Clock -->
+        <div class="carbon-clock-container" id="carbon-clock-container">
+          <div class="clock-header">
+            <span class="live-tag"><span class="pulse-dot"></span>LIVE GLOBAL CO₂ EMISSIONS</span>
+          </div>
+          <div class="clock-grid">
+            <div class="clock-section">
+              <span class="clock-sublabel">EMITTED SINCE JAN 1:</span>
+              <span class="clock-number" id="global-co2-year">0</span>
+              <span class="clock-unit-label">tons</span>
+            </div>
+            <div class="clock-section separator">
+              <span class="clock-sublabel">SINCE YOU VISITED:</span>
+              <span class="clock-number highlight" id="global-co2-visit">0.00</span>
+              <span class="clock-unit-label">tons</span>
+            </div>
+          </div>
+        </div>
+
         <span class="hero-pretitle">Interactive Climate Pathway</span>
         <h1 class="hero-title smooth-reveal" id="scramble-hero-title">YOUR CLIMATE PATHWAY, <span class="text-gradient">REIMAGINED</span></h1>
         <p class="hero-desc">Every individual choice ripples outward. Map your lifestyle's ecological pressure footprint, log your daily reductions, and discover personalized pathways guided by our climate assistant.</p>
@@ -452,14 +471,135 @@
               </div>
             </div>
 
+            <!-- What-If Simulation Sandbox Card -->
+            <div class="card what-if-card" id="what-if-sandbox">
+              <div class="card-header">
+                <h4 class="card-title">What-If Sandbox</h4>
+                <span class="card-subtitle">Simulate lifestyle overrides live</span>
+              </div>
+              <div class="card-body">
+                <div class="sandbox-controls">
+                  <div class="sandbox-toggle-item">
+                    <label class="switch">
+                      <input type="checkbox" id="sim-toggle-ev">
+                      <span class="slider"></span>
+                    </label>
+                    <div class="toggle-details">
+                      <span class="toggle-title">Switch to Electric Vehicle</span>
+                      <span class="toggle-desc">Replace car fuel with electricity</span>
+                    </div>
+                  </div>
+                  <div class="sandbox-toggle-item">
+                    <label class="switch">
+                      <input type="checkbox" id="sim-toggle-clean">
+                      <span class="slider"></span>
+                    </label>
+                    <div class="toggle-details">
+                      <span class="toggle-title">100% Clean Power</span>
+                      <span class="toggle-desc">Zero-out grid electricity footprint</span>
+                    </div>
+                  </div>
+                  <div class="sandbox-toggle-item">
+                    <label class="switch">
+                      <input type="checkbox" id="sim-toggle-vegan">
+                      <span class="slider"></span>
+                    </label>
+                    <div class="toggle-details">
+                      <span class="toggle-title">Adopt Vegan Diet</span>
+                      <span class="toggle-desc">Minimize agricultural food impact</span>
+                    </div>
+                  </div>
+                  <div class="sandbox-toggle-item">
+                    <label class="switch">
+                      <input type="checkbox" id="sim-toggle-recycle">
+                      <span class="slider"></span>
+                    </label>
+                    <div class="toggle-details">
+                      <span class="toggle-title">Strict Sorting / Recycling</span>
+                      <span class="toggle-desc">Maximize consumer offset credit</span>
+                    </div>
+                  </div>
+                  <div class="sandbox-toggle-item">
+                    <label class="switch">
+                      <input type="checkbox" id="sim-toggle-flights">
+                      <span class="slider"></span>
+                    </label>
+                    <div class="toggle-details">
+                      <span class="toggle-title">Eliminate Flights</span>
+                      <span class="toggle-desc">Zero-out short & long haul air travel</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="sandbox-results" style="margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--border-color); display: flex; flex-direction: column; gap: 8px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 12px; color: var(--text-secondary);">Simulated Footprint:</span>
+                    <span id="sim-total-footprint" style="font-size: 18px; font-weight: 700; color: var(--accent);">--t</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 11px; color: var(--text-muted);">Simulated Savings:</span>
+                    <span id="sim-footprint-savings" style="font-size: 12px; font-weight: 600; color: var(--accent-dim);">--t (0%)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Personalized Offset Pathways Card -->
+            <div class="card offsets-card" id="offset-calculator-card">
+              <div class="card-header">
+                <h4 class="card-title">Offset Pathways</h4>
+                <span class="card-subtitle">Neutralize your score of <span id="offset-score-highlight">0.0t</span> CO₂e</span>
+              </div>
+              <div class="card-body" style="display: flex; flex-direction: column; gap: 16px;">
+                <p style="font-size: 12px; color: var(--text-secondary); margin: 0;">To offset your emissions, you could adopt any of the following individual targets:</p>
+                
+                <div class="offset-pathways-list" style="display: flex; flex-direction: column; gap: 12px;">
+                  <div class="offset-item" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px;">
+                    <div style="font-size: 18px; color: var(--accent);"><i data-lucide="car"></i></div>
+                    <div style="display: flex; flex-direction: column;">
+                      <span style="font-size: 12px; font-weight: 600; color: var(--text-primary);">Go Car-Free</span>
+                      <span class="offset-value" id="offset-val-car" style="font-size: 13px; color: var(--accent);">-- months</span>
+                    </div>
+                  </div>
+                  
+                  <div class="offset-item" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px;">
+                    <div style="font-size: 18px; color: var(--accent);"><i data-lucide="leaf"></i></div>
+                    <div style="display: flex; flex-direction: column;">
+                      <span style="font-size: 12px; font-weight: 600; color: var(--text-primary);">Plant Native Trees</span>
+                      <span class="offset-value" id="offset-val-trees" style="font-size: 13px; color: var(--accent);">-- trees</span>
+                    </div>
+                  </div>
+                  
+                  <div class="offset-item" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px;">
+                    <div style="font-size: 18px; color: var(--accent);"><i data-lucide="salad"></i></div>
+                    <div style="display: flex; flex-direction: column;">
+                      <span style="font-size: 12px; font-weight: 600; color: var(--text-primary);">Adopt Plant-Based / Vegan Diet</span>
+                      <span class="offset-value" id="offset-val-vegan" style="font-size: 13px; color: var(--accent);">-- months</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </section>
 
         <!-- CALCULATOR WORKSPACE -->
         <section class="app-view" id="view-calculator" role="tabpanel" aria-labelledby="tab-calculator" tabindex="0">
-          <div class="section-header">
-            <h3>Carbon Footprint Audit</h3>
-            <p class="section-desc">Estimate your yearly greenhouse impact in a personalized, step-by-step audit.</p>
+          <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <h3>Carbon Footprint Audit</h3>
+              <p class="section-desc">Estimate your yearly greenhouse impact in a personalized, step-by-step audit.</p>
+            </div>
+            <div class="region-selector-wrapper" style="display: flex; align-items: center; gap: 8px;">
+              <label for="select-region" style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">Region:</label>
+              <select id="select-region" class="form-control" style="width: auto; padding: 6px 12px; font-size: 13px; font-family: var(--font-body); background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer; min-width: 100px;">
+                <option value="IN" selected>India (₹)</option>
+                <option value="US">United States ($)</option>
+                <option value="UK">United Kingdom (£)</option>
+                <option value="EU">Europe (€)</option>
+              </select>
+            </div>
           </div>
 
           <div class="calculator-container card">
@@ -571,10 +711,10 @@
                 <h4>What is your average monthly electricity bill?</h4>
                 <p class="question-desc">Calculates your annual power draw in kilowatt-hours based on typical rates.</p>
                 <div class="input-wrapper">
-                  <span class="input-prefix">$</span>
-                  <input type="number" id="input-electricity" min="0" value="80" class="form-control large-input" aria-describedby="electricity-tip">
+                  <span class="input-prefix" id="electricity-prefix">₹</span>
+                  <input type="number" id="input-electricity" min="0" value="1200" class="form-control large-input" aria-describedby="electricity-tip">
                   <span class="input-unit">/ month</span>
-                  <span class="form-tip" id="electricity-tip">Typical average is around $80 to $120 depending on region.</span>
+                  <span class="form-tip" id="electricity-tip">Typical average is around ₹1,200 depending on region.</span>
                 </div>
               </div>
 
@@ -596,8 +736,8 @@
                 <h4>What is your average monthly gas heating bill?</h4>
                 <p class="question-desc">Covers boilers, gas fireplaces, stoves, and furnaces.</p>
                 <div class="input-wrapper">
-                  <span class="input-prefix">$</span>
-                  <input type="number" id="input-gas" min="0" value="40" class="form-control large-input" aria-describedby="gas-tip">
+                  <span class="input-prefix" id="gas-prefix">₹</span>
+                  <input type="number" id="input-gas" min="0" value="500" class="form-control large-input" aria-describedby="gas-tip">
                   <span class="input-unit">/ month</span>
                 </div>
               </div>
