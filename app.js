@@ -72,6 +72,18 @@ function loadFromStorage() {
       state.loggedActions = parsed.loggedActions || [];
       state.customLogs = parsed.customLogs || [];
       state.unlockedAchievements = parsed.unlockedAchievements || [];
+      state.logHistory = parsed.logHistory || {};
+      state.streakCurrent = parsed.streakCurrent || 0;
+      state.streakRecord = parsed.streakRecord || 0;
+      state.lastActiveDate = parsed.lastActiveDate || '';
+
+      // Check for new day to reset daily progress
+      const todayStr = getLocalDateString();
+      if (state.lastActiveDate && state.lastActiveDate !== todayStr) {
+        state.loggedActions = [];
+        state.customLogs = [];
+      }
+      state.lastActiveDate = todayStr;
     } catch (e) {
       console.error("Error loading state. Resetting to defaults.", e);
     }
@@ -575,6 +587,7 @@ function toggleAction(actionId, isLogged) {
   }
 
   saveToStorage();
+  updateStreakState();
   updateUI();
 }
 
@@ -635,6 +648,7 @@ function handleCustomActionSubmit(e) {
   descEl.value = '';
   
   saveToStorage();
+  updateStreakState();
   updateUI();
   
   sendBotWelcomeMessage(`Logged custom action: <strong>"${desc}"</strong>. Saved ${saving} kg of CO2 emissions!`);
@@ -772,6 +786,13 @@ function updateUI() {
 
   // Update Grid footprint pressure visual on landing page
   updateGridFootprintPressure(state.footprint.total);
+
+  // Update dashboard equivalencies and comparative benchmarks
+  updateDashboardEquivalencies(state.footprint.total);
+
+  // Update streak display and dots timeline
+  calculateStreak();
+  renderStreakTimeline();
 
   // Update target achievement text
   const targetText = document.getElementById('target-achievement-message');
@@ -945,6 +966,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Initialize Grid Footprint Graphics ---
   initGridFootprint();
+
+  // --- Bind Export Passport Button ---
+  const exportBtn = document.getElementById('btn-export-passport');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', exportCarbonPassport);
+  }
 
   // --- Initialise Scroll Reveals ---
   initScrollReveal();
@@ -1171,10 +1198,15 @@ document.addEventListener('DOMContentLoaded', () => {
           state.ecoPoints = 0;
           state.calculatorStep = 1;
           state.unlockedAchievements = [];
+          state.logHistory = {};
+          state.streakCurrent = 0;
+          state.streakRecord = 0;
+          state.lastActiveDate = getLocalDateString();
           
           // Resync
           setFormInputs(state.calculatorInputs);
           renderStepPanel();
+          updateStreakState();
           updateUI();
           
           // Assistant clear
@@ -1716,4 +1748,285 @@ function updateGridFootprintPressure(totalFootprint) {
   } else {
     gridFootprintPressureMultiplier = 0.85 + (totalFootprint / 25);
   }
+}
+
+// ======================================================================
+// ROADMAPPED HABIT STREAK ENGINE & PASSPORT EXPORTER
+// ======================================================================
+
+function getLocalDateString(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function calculateStreak() {
+  if (!state.logHistory) state.logHistory = {};
+  
+  const dates = Object.keys(state.logHistory).filter(d => state.logHistory[d]).sort();
+  if (dates.length === 0) {
+    state.streakCurrent = 0;
+    return;
+  }
+  
+  let currentStreak = 0;
+  const checkDate = new Date();
+  
+  const todayStr = getLocalDateString(checkDate);
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayStr = getLocalDateString(yesterday);
+  
+  const isStreakAlive = state.logHistory[todayStr] || state.logHistory[yesterdayStr];
+  
+  if (isStreakAlive) {
+    let tempDate = new Date();
+    if (!state.logHistory[todayStr] && state.logHistory[yesterdayStr]) {
+      tempDate.setDate(tempDate.getDate() - 1);
+    }
+    
+    while (true) {
+      const dateStr = getLocalDateString(tempDate);
+      if (state.logHistory[dateStr]) {
+        currentStreak++;
+        tempDate.setDate(tempDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+  }
+  
+  state.streakCurrent = currentStreak;
+  if (state.streakCurrent > (state.streakRecord || 0)) {
+    state.streakRecord = state.streakCurrent;
+  }
+}
+
+function updateStreakState() {
+  if (!state.logHistory) state.logHistory = {};
+  
+  const todayStr = getLocalDateString();
+  const hasLog = (state.loggedActions.length > 0 || state.customLogs.length > 0);
+  
+  if (hasLog) {
+    state.logHistory[todayStr] = true;
+  } else {
+    delete state.logHistory[todayStr];
+  }
+  
+  calculateStreak();
+  saveToStorage();
+}
+
+function renderStreakTimeline() {
+  const container = document.getElementById('streak-dots-timeline');
+  const currentValEl = document.getElementById('streak-current-val');
+  const recordValEl = document.getElementById('streak-record-val');
+  
+  if (currentValEl) currentValEl.textContent = state.streakCurrent || 0;
+  if (recordValEl) recordValEl.textContent = state.streakRecord || 0;
+  
+  if (!container) return;
+  container.innerHTML = '';
+  
+  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const today = new Date();
+  
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(today.getDate() - i);
+    const dateStr = getLocalDateString(d);
+    const dayLabel = daysOfWeek[d.getDay()];
+    const isToday = (i === 0);
+    const isActive = state.logHistory && state.logHistory[dateStr];
+    
+    const dotDiv = document.createElement('div');
+    dotDiv.className = `streak-dot${isActive ? ' active' : ''}${isToday ? ' today' : ''}`;
+    
+    const circle = document.createElement('div');
+    circle.className = 'streak-dot-circle';
+    if (isActive) {
+      circle.innerHTML = '✓';
+    } else {
+      circle.textContent = d.getDate();
+    }
+    
+    const label = document.createElement('span');
+    label.className = 'streak-dot-day';
+    label.textContent = isToday ? 'Today' : dayLabel;
+    
+    dotDiv.appendChild(circle);
+    dotDiv.appendChild(label);
+    container.appendChild(dotDiv);
+  }
+}
+
+function updateDashboardEquivalencies(totalFootprint) {
+  const milesEl = document.getElementById('equiv-miles');
+  const treesEl = document.getElementById('equiv-trees');
+  const vsGlobalEl = document.getElementById('equiv-vs-global');
+  const userMarker = document.getElementById('benchmark-user-marker');
+  const userVal = document.getElementById('benchmark-user-value');
+  
+  if (!userMarker || !userVal) return;
+  
+  const miles = Math.round(totalFootprint * 4500);
+  const trees = Math.round(totalFootprint * 20);
+  
+  if (milesEl) milesEl.textContent = `${miles.toLocaleString()} miles`;
+  if (treesEl) treesEl.textContent = `${trees} trees`;
+  
+  if (vsGlobalEl) {
+    if (totalFootprint === 0) {
+      vsGlobalEl.textContent = '--';
+    } else {
+      const diffPercent = ((totalFootprint - 4.7) / 4.7) * 100;
+      if (Math.abs(diffPercent) < 1) {
+        vsGlobalEl.textContent = 'Equal to Global Avg';
+      } else if (diffPercent > 0) {
+        vsGlobalEl.textContent = `${Math.round(diffPercent)}% above Global Avg`;
+      } else {
+        vsGlobalEl.textContent = `${Math.round(Math.abs(diffPercent))}% below Global Avg`;
+      }
+    }
+  }
+  
+  const percent = Math.min(100, Math.max(3, (totalFootprint / 12) * 100));
+  userMarker.style.left = `${percent}%`;
+  userVal.textContent = `${totalFootprint.toFixed(1)}t`;
+}
+
+function exportCarbonPassport() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 450;
+  canvas.height = 550;
+  const ctx = canvas.getContext('2d');
+
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  
+  ctx.fillStyle = isDark ? '#08090a' : '#f5f7f8';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.03)';
+  ctx.lineWidth = 1;
+  const gridSize = 15;
+  for (let x = 0; x < canvas.width; x += gridSize) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, canvas.height);
+    ctx.stroke();
+  }
+  for (let y = 0; y < canvas.height; y += gridSize) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.15)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+  
+  ctx.strokeStyle = isDark ? '#ffffff' : '#000000';
+  ctx.lineWidth = 3;
+  const bracketSize = 15;
+  const coords = [
+    [10, 10, 1, 1],
+    [canvas.width - 10, 10, -1, 1],
+    [10, canvas.height - 10, 1, -1],
+    [canvas.width - 10, canvas.height - 10, -1, -1]
+  ];
+  coords.forEach(([x, y, dx, dy]) => {
+    ctx.beginPath();
+    ctx.moveTo(x + dx * bracketSize, y);
+    ctx.lineTo(x, y);
+    ctx.lineTo(x, y + dy * bracketSize);
+    ctx.stroke();
+  });
+
+  ctx.fillStyle = isDark ? '#ffffff' : '#000000';
+  ctx.font = 'bold 16px monospace';
+  ctx.fillText('ECOSPHERE // SYSTEM DIAGNOSTIC', 30, 45);
+  
+  ctx.font = '10px monospace';
+  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)';
+  ctx.fillText('PASSPORT STATUS: ACTIVE SYSTEM', 30, 60);
+  
+  ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(30, 75);
+  ctx.lineTo(canvas.width - 30, 75);
+  ctx.stroke();
+  
+  ctx.fillStyle = isDark ? '#ffffff' : '#000000';
+  ctx.font = '11px monospace';
+  ctx.fillText(`CITIZEN IDENTIFIER: CLIMATE CITIZEN`, 30, 105);
+  ctx.fillText(`ISSUED: ${new Date().toLocaleDateString().toUpperCase()}`, 30, 120);
+  
+  ctx.font = 'bold 64px sans-serif';
+  ctx.fillStyle = isDark ? '#ffffff' : '#000000';
+  const scoreText = state.footprint.total.toFixed(1);
+  ctx.fillText(scoreText, 30, 195);
+  
+  ctx.font = '12px monospace';
+  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)';
+  ctx.fillText('METRIC TONS CO2e / YEAR', 30, 215);
+  
+  ctx.beginPath();
+  ctx.moveTo(30, 240);
+  ctx.lineTo(canvas.width - 30, 240);
+  ctx.stroke();
+  
+  ctx.font = 'bold 12px monospace';
+  ctx.fillStyle = isDark ? '#ffffff' : '#000000';
+  ctx.fillText('SECTOR METRIC BREAKDOWN:', 30, 270);
+  
+  const sectors = [
+    { name: 'TRANSPORTATION', val: state.footprint.transportation },
+    { name: 'HOME ENERGY', val: state.footprint.energy },
+    { name: 'DIETARY HABITS', val: state.footprint.diet },
+    { name: 'SHOPPING & WASTE', val: state.footprint.consumption }
+  ];
+  
+  const maxSectorVal = Math.max(...sectors.map(s => s.val), 1);
+  
+  sectors.forEach((sec, idx) => {
+    const y = 300 + idx * 45;
+    ctx.font = '10px monospace';
+    ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.7)';
+    ctx.fillText(`${sec.name}`, 30, y);
+    ctx.fillText(`${sec.val.toFixed(1)}t`, canvas.width - 70, y);
+    
+    ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+    ctx.fillRect(30, y + 8, canvas.width - 100, 6);
+    
+    const barWidth = ((sec.val / maxSectorVal) * (canvas.width - 100));
+    ctx.fillStyle = isDark ? '#ffffff' : '#000000';
+    ctx.fillRect(30, y + 8, barWidth, 6);
+  });
+  
+  ctx.beginPath();
+  ctx.moveTo(30, 480);
+  ctx.lineTo(canvas.width - 30, 480);
+  ctx.stroke();
+  
+  ctx.font = '9px monospace';
+  ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)';
+  const vsGlobalPercent = ((state.footprint.total - 4.7) / 4.7) * 100;
+  const globalComparison = vsGlobalPercent > 0 
+    ? `${Math.round(vsGlobalPercent)}% ABOVE GLOBAL AVG (4.7t)`
+    : `${Math.round(Math.abs(vsGlobalPercent))}% BELOW GLOBAL AVG (4.7t)`;
+  
+  ctx.fillText(`PARIS TARGET STATUS: ${state.footprint.total <= 2.0 ? 'COMPLIANT' : 'OVER BUDGET (LIMIT: 2.0t)'}`, 30, 505);
+  ctx.fillText(`GLOBAL BENCHMARK: ${globalComparison}`, 30, 520);
+  
+  const url = canvas.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ecosphere-carbon-passport.png';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
