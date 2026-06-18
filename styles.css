@@ -2570,5 +2570,121 @@ input:checked + .slider:before {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* ======================================================================
+   MOBILE S (320px) AND SMALL SCREENS POLISH
+   ====================================================================== */
+html, body {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+}
+
+@media (max-width: 480px) {
+  /* Landing Header brand text hide & button shrink */
+  .landing-header {
+    padding: 16px 16px !important;
+  }
+  .landing-header .brand span {
+    display: none !important; /* Hide "EcoSphere" brand text, keep only icon */
+  }
+  .landing-nav-actions {
+    gap: 8px !important;
+  }
+  #btn-enter-workspace {
+    padding: 8px 12px !important;
+    font-size: 11px !important;
+    border-radius: 6px !important;
+    white-space: nowrap !important;
+  }
+
+  /* Hero Section alignments */
+  .hero-container {
+    padding: 110px 16px 40px !important;
+    gap: 24px !important;
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .hero-title {
+    font-size: clamp(24px, 7vw, 36px) !important;
+    letter-spacing: -1px !important;
+    line-height: 1.1 !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+  .hero-desc {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+  }
+  .hero-actions-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    gap: 10px !important;
+  }
+  .hero-actions-row .btn {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 12px 20px !important;
+    font-size: 13px !important;
+  }
+
+  /* Name Customizer Input Wrapper */
+  .hero-name-container {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  #hero-name-input {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Carbon Clock adjustments for 320px */
+  .carbon-clock-container {
+    padding: 16px !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .clock-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .clock-section.separator {
+    border-left: none !important;
+    padding-left: 0 !important;
+    border-top: 1px solid var(--border-color) !important;
+    padding-top: 12px !important;
+  }
+  .clock-number {
+    font-size: 18px !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+  
+  /* 3D Earth resizing */
+  #canvas-earth-3d {
+    width: 280px !important;
+    height: 280px !important;
+  }
+}
+
+@media (max-width: 320px) {
+  .hero-title {
+    font-size: 22px !important;
+  }
+  .clock-number {
+    font-size: 16px !important;
+  }
+  .landing-header {
+    padding: 12px 10px !important;
+  }
+  #btn-enter-workspace {
+    font-size: 10px !important;
+    padding: 6px 10px !important;
+  }
+}
+
 
 
