@@ -1612,7 +1612,13 @@ label {
   }
   .stat-ticker-value { font-size: 28px; }
   
-  .view-viewport { padding: 20px; }
+  .view-viewport {
+    padding: 20px !important;
+    flex: 1 !important;
+    overflow-y: auto !important;
+    padding-bottom: 96px !important; /* clear bottom navigation bar overlay */
+    -webkit-overflow-scrolling: touch;
+  }
   .dashboard-grid { grid-template-columns: 1fr; }
   .logger-layout { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
@@ -1693,9 +1699,11 @@ label {
   /* 2. Main content area space adjustments for bottom tab bar */
   .main-content {
     margin-left: 0 !important;
-    padding-bottom: 80px !important;
+    padding-bottom: 0 !important;
     height: calc(100vh - 64px) !important;
-    overflow-y: auto !important;
+    overflow: hidden !important; /* prevent nested scrolling conflicts */
+    display: flex !important;
+    flex-direction: column !important;
     width: 100% !important;
   }
   .top-bar {
