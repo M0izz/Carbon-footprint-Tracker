@@ -113,8 +113,13 @@ function toggleWorkspaceMode(enterWorkspace) {
   
   if (enterWorkspace) {
     window.scrollTo(0, 0);
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
+    if (window.innerWidth > 768) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
     
     landingScreen.classList.add('hidden');
     mainDashboard.classList.remove('hidden');
@@ -1086,6 +1091,40 @@ document.addEventListener('DOMContentLoaded', () => {
     backLandingBtn.addEventListener('click', () => toggleWorkspaceMode(false));
   }
 
+  // --- MOBILE HAMBURGER MENU DRAWER ---
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const sidebarEl = document.querySelector('.sidebar');
+  const mobileOverlayEl = document.getElementById('mobile-overlay');
+
+  if (mobileMenuBtn && sidebarEl && mobileOverlayEl) {
+    mobileMenuBtn.addEventListener('click', () => {
+      sidebarEl.classList.toggle('open');
+      mobileOverlayEl.classList.toggle('visible');
+    });
+
+    mobileOverlayEl.addEventListener('click', () => {
+      sidebarEl.classList.remove('open');
+      mobileOverlayEl.classList.remove('visible');
+    });
+
+    // Close menu when a navigation item is clicked
+    const navItems = sidebarEl.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        sidebarEl.classList.remove('open');
+        mobileOverlayEl.classList.remove('visible');
+      });
+    });
+
+    // Close menu when Home Screen button is clicked inside sidebar
+    if (backLandingBtn) {
+      backLandingBtn.addEventListener('click', () => {
+        sidebarEl.classList.remove('open');
+        mobileOverlayEl.classList.remove('visible');
+      });
+    }
+  }
+
   // --- LANDING PAGE SCROLL EFFECTS ---
   window.addEventListener('scroll', () => {
     const scrollY = window.scrollY;
@@ -1389,21 +1428,28 @@ function init3DEarth() {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
-  let width = canvas.offsetWidth;
-  let height = canvas.offsetHeight;
-  canvas.width = width;
-  canvas.height = height;
+  const dpr = window.devicePixelRatio || 1;
+  let rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+
+  let width = rect.width;
+  let height = rect.height;
+  let sphereRadius = Math.min(width, height) * 0.42;
 
   window.addEventListener('resize', () => {
     if (canvas.offsetWidth === 0) return;
-    width = canvas.offsetWidth;
-    height = canvas.offsetHeight;
-    canvas.width = width;
-    canvas.height = height;
+    rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    width = rect.width;
+    height = rect.height;
+    sphereRadius = Math.min(width, height) * 0.42;
   });
 
   let angle = 0;
-  const sphereRadius = Math.min(width, height) * 0.42;
 
   // Continental coordinate points on sphere [lat, lng]
   const points = [];
@@ -1561,17 +1607,23 @@ function initScrollFrequencyWave() {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
-  let width = canvas.offsetWidth;
-  let height = canvas.offsetHeight;
-  canvas.width = width;
-  canvas.height = height;
+  const dpr = window.devicePixelRatio || 1;
+  let rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+
+  let width = rect.width;
+  let height = rect.height;
 
   window.addEventListener('resize', () => {
     if (canvas.offsetWidth === 0) return;
-    width = canvas.offsetWidth;
-    height = canvas.offsetHeight;
-    canvas.width = width;
-    canvas.height = height;
+    rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    width = rect.width;
+    height = rect.height;
   });
 
   let scrollVelocity = 0;
@@ -1750,22 +1802,35 @@ function initGridFootprint() {
   const canvas = document.getElementById('canvas-grid-footprint');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  const width = canvas.width;
-  const height = canvas.height;
 
-  // Define symmetrical eco-leaf outline path
+  const dpr = window.devicePixelRatio || 1;
+  let rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+
+  let width = rect.width;
+  let height = rect.height;
+
+  // Define symmetrical eco-leaf outline path using original 220x280 coordinates
   const leafPath = new Path2D();
-  const cx = width / 2;    // 110
-  const cy = height / 2;   // 140
-  
-  // Stem base at (110, 240)
-  // Leaf tip at (110, 45)
+  const cx = 110; // 220 / 2
+  const cy = 140; // 280 / 2
+
   leafPath.moveTo(cx, 240);
-  // Left curve
   leafPath.bezierCurveTo(cx - 75, 190, cx - 75, 85, cx, 45);
-  // Right curve
   leafPath.bezierCurveTo(cx + 75, 85, cx + 75, 190, cx, 240);
   leafPath.closePath();
+
+  window.addEventListener('resize', () => {
+    if (canvas.offsetWidth === 0) return;
+    rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
+    width = rect.width;
+    height = rect.height;
+  });
 
   function renderGrid() {
     ctx.clearRect(0, 0, width, height);
@@ -1785,7 +1850,7 @@ function initGridFootprint() {
         const centerX = x + cellSize / 2;
         const centerY = y + cellSize / 2;
         
-        const isLeaf = ctx.isPointInPath(leafPath, centerX, centerY);
+        const isLeaf = ctx.isPointInPath(leafPath, centerX * dpr, centerY * dpr);
         
         if (isLeaf) {
           // Check if this cell is on a vein

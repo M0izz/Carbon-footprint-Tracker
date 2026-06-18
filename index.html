@@ -228,6 +228,8 @@
 
   <!-- DASHBOARD WORKSPACE VIEWPORT -->
   <div class="app-container app-workspace hidden" id="main-dashboard">
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobile-overlay" class="mobile-overlay"></div>
     <!-- Sidebar Navigation Dock -->
     <aside class="sidebar" role="complementary" aria-label="Sidebar Navigation">
       <div class="brand">
@@ -291,6 +293,17 @@
     <main class="main-content" id="main-content" tabindex="-1">
       <!-- Top header bar -->
       <header class="top-bar">
+        <button class="icon-btn" id="mobile-menu-btn" aria-label="Open Navigation Menu">
+          <i data-lucide="menu">☰</i>
+        </button>
+        <div class="mobile-brand-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-emerald">
+            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7255 3.09032 17.1962 4.85857 19" />
+            <path d="M12 6V12L16 14" />
+            <path d="M2 12h10" />
+          </svg>
+          <span>EcoSphere</span>
+        </div>
         <div class="welcome-text">
           <span class="greeting" id="user-greeting">Welcome, Climate Citizen</span>
           <p class="date-string" id="current-date"></p>

@@ -104,14 +104,24 @@
   padding: 0;
 }
 
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
-  overflow-x: hidden;
   transition: background-color var(--transition-normal), color var(--transition-normal);
   position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+img, canvas, video {
+  max-width: 100%;
 }
 
 /* Grain Noise Texture Overlay — Cinematic Effect */
@@ -217,7 +227,7 @@ h1, h2, h3, h4, h5 {
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
   z-index: 1;
 }
 
@@ -344,6 +354,12 @@ h1, h2, h3, h4, h5 {
   width: 300px;
   height: 360px;
   position: relative;
+}
+#canvas-grid-footprint {
+  width: 220px;
+  height: 280px;
+  display: block;
+  margin: 0 auto;
 }
 .footprint-glow-container::after {
   content: '';
@@ -1562,178 +1578,7 @@ label {
   font-style: italic;
 }
 
-/* ======================================================================
-   RESPONSIVE MEDIA BREAKPOINTS
-   ====================================================================== */
-@media (max-width: 1024px) {
-  .hero-container {
-    grid-template-columns: 1fr;
-    padding: 100px 32px 40px;
-    gap: 32px;
-    text-align: center;
-  }
-  .hero-title { font-size: 52px; }
-  .hero-text-block { align-items: center; }
-  .hero-desc { max-width: 100%; }
-  .hero-scroll-indicator { grid-column: span 1; }
-  .showcase-grid { grid-template-columns: 1fr; gap: 20px; }
-  .stats-ticker-strip { gap: 40px; }
-  .app-container {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-    height: auto;
-    overflow-y: auto;
-  }
-  .sidebar {
-    height: auto;
-    padding: 16px 24px;
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-  }
-  .sidebar .brand { margin-bottom: 16px; }
-  .nav-menu ul { flex-direction: row; justify-content: space-around; }
-  .sidebar-stats-card { display: none; }
-  .btn-back-landing { display: none !important; }
-}
-
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: clamp(28px, 8vw, 48px) !important;
-    letter-spacing: -1px;
-  }
-  .landing-header { padding: 20px 24px; }
-  .scroll-showcase { padding: 60px 24px; }
-  
-  .stats-ticker-strip {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 16px !important;
-    padding: 16px 20px !important;
-  }
-  .stat-ticker-value { font-size: 28px; }
-  
-  .view-viewport {
-    padding: 20px !important;
-    flex: 1 !important;
-    overflow-y: auto !important;
-    padding-bottom: 96px !important; /* clear bottom navigation bar overlay */
-    -webkit-overflow-scrolling: touch;
-  }
-  .dashboard-grid { grid-template-columns: 1fr; }
-  .logger-layout { grid-template-columns: 1fr; }
-  .form-grid { grid-template-columns: 1fr; }
-  .form-group.full-width { grid-column: span 1; }
-  
-  .assistant-chat-panel {
-    width: calc(100% - 40px);
-    right: 20px;
-    left: 20px;
-    bottom: 80px; /* shift up to clear the bottom navigation bar */
-    z-index: 10002;
-  }
-  .landing-footer { flex-direction: column; gap: 12px; text-align: center; }
-
-  /* 1. Sidebar to Bottom Tab Bar on Mobile */
-  .app-container {
-    grid-template-columns: 1fr !important;
-    grid-template-rows: 1fr !important;
-    height: 100vh !important;
-    overflow: hidden !important;
-  }
-  .sidebar {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    top: auto !important;
-    width: 100% !important;
-    height: 64px !important;
-    flex-direction: row !important;
-    justify-content: space-around !important;
-    align-items: center !important;
-    border-top: 1px solid var(--border-color) !important;
-    border-right: none !important;
-    border-bottom: none !important;
-    z-index: 10000 !important;
-    padding: 0 16px !important;
-    background: rgba(10, 10, 10, 0.95) !important;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    overflow: hidden !important;
-  }
-  .sidebar .brand,
-  .sidebar .sidebar-stats-card,
-  .sidebar .btn-back-landing {
-    display: none !important;
-  }
-  .sidebar .nav-menu {
-    width: 100% !important;
-    margin: 0 !important;
-  }
-  .sidebar #main-tabs {
-    flex-direction: row !important;
-    justify-content: space-around !important;
-    width: 100% !important;
-    gap: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  .sidebar .nav-item {
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 4px !important;
-    padding: 8px !important;
-    width: auto !important;
-    background: none !important;
-    border: none !important;
-  }
-  .sidebar .nav-item span {
-    display: none !important; /* Hide labels for icon-only mobile navigation */
-  }
-  .sidebar .nav-item i {
-    font-size: 20px !important;
-    margin: 0 !important;
-  }
-
-  /* 2. Main content area space adjustments for bottom tab bar */
-  .main-content {
-    margin-left: 0 !important;
-    padding-bottom: 0 !important;
-    height: calc(100vh - 64px) !important;
-    overflow: hidden !important; /* prevent nested scrolling conflicts */
-    display: flex !important;
-    flex-direction: column !important;
-    width: 100% !important;
-  }
-  .top-bar {
-    padding: 16px 20px !important;
-  }
-
-  /* 3. Audit Option Cards Stack */
-  .choice-cards-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  /* 4. CO2 clock stacks vertically */
-  .clock-grid {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
-  }
-  .clock-section.separator {
-    border-left: none !important;
-    padding-left: 0 !important;
-    border-top: 1px solid var(--border-color) !important;
-    padding-top: 12px !important;
-  }
-
-  /* 5. Footprint Leaf Glow Container scaled down */
-  .footprint-glow-container {
-    width: 240px !important;
-    height: 300px !important;
-    margin: 0 auto !important;
-  }
-}
+/* RESPONSIVE MEDIA BREAKPOINTS DECLARED AT THE BOTTOM OF THE FILE */
 
 /* ======================================================================
    CUSTOM MODAL OVERLAY
@@ -2570,27 +2415,144 @@ input:checked + .slider:before {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* Mobile navigation defaults for desktop view */
+#mobile-menu-btn {
+  display: none !important;
+}
+.mobile-brand-logo {
+  display: none !important;
+}
+.mobile-overlay {
+  display: none;
+}
+
 /* ======================================================================
-   MOBILE S (320px) AND SMALL SCREENS POLISH
+   RESPONSIVE MEDIA BREAKPOINTS (REORGANIZED & OPTIMIZED FOR MOBILE S TO TABLET)
    ====================================================================== */
-html, body {
-  max-width: 100vw !important;
-  overflow-x: hidden !important;
+
+@media (max-width: 1024px) {
+  .hero-container {
+    grid-template-columns: 1fr;
+    padding: 100px 32px 40px;
+    gap: 32px;
+    text-align: center;
+  }
+  .hero-title { font-size: 52px; }
+  .hero-text-block { align-items: center; }
+  .hero-desc { max-width: 100%; }
+  .hero-scroll-indicator { grid-column: span 1; }
+  .showcase-grid { grid-template-columns: 1fr; gap: 20px; }
+  .stats-ticker-strip { gap: 40px; }
+  
+  .app-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    height: auto;
+    overflow-y: auto;
+  }
+  .sidebar {
+    height: auto;
+    padding: 16px 24px;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .sidebar .brand { margin-bottom: 16px; }
+  .nav-menu ul { flex-direction: row; justify-content: space-around; }
+  .sidebar-stats-card { display: none; }
+  .btn-back-landing { display: none !important; }
+}
+
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+    height: auto !important;
+  }
+
+  .hero-title {
+    font-size: clamp(28px, 8vw, 48px) !important;
+    letter-spacing: -1px;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+  .landing-header { padding: 20px 24px; }
+  .scroll-showcase { padding: 60px 24px; }
+  
+  .stats-ticker-strip {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 16px !important;
+    padding: 16px 20px !important;
+  }
+  .stat-ticker-value { font-size: 28px; }
+  
+  .dashboard-grid { 
+    grid-template-columns: 1fr !important; 
+    gap: 16px !important;
+  }
+  .logger-layout { grid-template-columns: 1fr !important; }
+  .form-grid { grid-template-columns: 1fr !important; }
+  .form-group.full-width { grid-column: span 1 !important; }
+  
+  .assistant-chat-panel {
+    width: calc(100% - 40px);
+    right: 20px;
+    left: 20px;
+    bottom: 80px;
+    z-index: 10002;
+  }
+  .landing-footer { flex-direction: column; gap: 12px; text-align: center; }
+
+
+  .top-bar {
+    padding: 16px 20px !important;
+  }
+
+  /* 3. Audit Option Cards Stack */
+  .choice-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* 4. CO2 clock stacks vertically */
+  .clock-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .clock-section.separator {
+    border-left: none !important;
+    padding-left: 0 !important;
+    border-top: 1px solid var(--border-color) !important;
+    padding-top: 12px !important;
+  }
+
+  /* 5. Footprint Leaf Glow Container scaled down */
+  .footprint-glow-container {
+    width: 240px !important;
+    height: 300px !important;
+    margin: 0 auto !important;
+  }
 }
 
 @media (max-width: 480px) {
-  /* Landing Header brand text hide & button shrink */
+  /* Landing Header brand text hide & button shrink / stack to prevent overflow */
   .landing-header {
-    padding: 16px 16px !important;
+    padding: 12px 16px !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    align-items: center !important;
+    position: relative !important;
   }
   .landing-header .brand span {
     display: none !important; /* Hide "EcoSphere" brand text, keep only icon */
   }
   .landing-nav-actions {
-    gap: 8px !important;
+    width: 100% !important;
+    justify-content: center !important;
+    gap: 10px !important;
   }
   #btn-enter-workspace {
-    padding: 8px 12px !important;
+    padding: 8px 14px !important;
     font-size: 11px !important;
     border-radius: 6px !important;
     white-space: nowrap !important;
@@ -2598,7 +2560,7 @@ html, body {
 
   /* Hero Section alignments */
   .hero-container {
-    padding: 110px 16px 40px !important;
+    padding: 30px 16px 40px !important; /* reduced top padding since header is relative now */
     gap: 24px !important;
     overflow-x: hidden !important;
     width: 100% !important;
@@ -2611,6 +2573,10 @@ html, body {
     line-height: 1.1 !important;
     word-wrap: break-word !important;
     overflow-wrap: break-word !important;
+  }
+  .hero-title .word-wrapper {
+    white-space: normal !important;
+    display: inline !important;
   }
   .hero-desc {
     font-size: 13px !important;
@@ -2639,7 +2605,7 @@ html, body {
     box-sizing: border-box !important;
   }
 
-  /* Carbon Clock adjustments for 320px */
+  /* Carbon Clock adjustments for mobile */
   .carbon-clock-container {
     padding: 16px !important;
     margin: 0 !important;
@@ -2672,17 +2638,348 @@ html, body {
 
 @media (max-width: 320px) {
   .hero-title {
-    font-size: 22px !important;
+    font-size: 20px !important;
   }
   .clock-number {
-    font-size: 16px !important;
+    font-size: 15px !important;
   }
   .landing-header {
-    padding: 12px 10px !important;
+    padding: 10px 8px !important;
   }
   #btn-enter-workspace {
     font-size: 10px !important;
     padding: 6px 10px !important;
+  }
+}
+
+/* ============================================
+   ECOSPHERE — MOBILE RESPONSIVE FIXES
+   Paste this at the very bottom of styles.css
+   ============================================ */
+
+/* --- GLOBAL SCROLL + OVERFLOW FIX --- */
+html {
+  overflow-x: hidden;
+  overflow-y: auto !important;
+  height: auto !important;
+}
+
+body {
+  overflow-x: hidden;
+  overflow-y: auto !important;
+  height: auto !important;
+  min-height: 100vh;
+  max-width: 100vw;
+  position: relative !important;
+}
+
+/* Fix canvas background blocking touch/scroll events */
+canvas {
+  pointer-events: none;
+  max-width: 100%;
+}
+
+/* Safeguard to ensure Climate Passport canvas remains clickable for download */
+.passport-card-wrapper canvas,
+#passport-page-canvas {
+  pointer-events: auto !important;
+}
+
+/* Fix any fixed/absolute overlay blocking scroll */
+* {
+  box-sizing: border-box;
+}
+
+/* ============================================
+   MOBILE STYLES — 768px and below
+   ============================================ */
+@media (max-width: 768px) {
+
+  /* --- MOBILE SIDEBAR DRAWER --- */
+  .sidebar,
+  [class*="sidebar"],
+  #sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: -100% !important;
+    width: 75% !important;
+    max-width: 280px !important;
+    height: 100vh !important;
+    z-index: 1000 !important;
+    background: #0a0a0a !important;
+    border-right: 0.5px solid rgba(255,255,255,0.1) !important;
+    border-bottom: none !important;
+    border-top: none !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    padding: 24px !important;
+    transition: left 0.3s ease !important;
+    overflow-y: auto !important;
+  }
+
+  .sidebar.open {
+    left: 0 !important;
+  }
+
+  /* Show text labels in sidebar drawer on mobile */
+  .sidebar span,
+  .sidebar .nav-label {
+    display: inline-block !important;
+  }
+
+  /* Ensure nav list items inside sidebar display vertically */
+  .nav-menu ul,
+  #main-tabs {
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
+  .nav-item {
+    width: 100% !important;
+    justify-content: flex-start !important;
+  }
+
+  /* Show Home Screen button on mobile inside the drawer */
+  .btn-back-landing {
+    display: flex !important;
+  }
+
+  /* --- MOBILE OVERLAY --- */
+  .mobile-overlay {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0,0,0,0.6) !important;
+    z-index: 999 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: opacity 0.3s ease !important;
+  }
+
+  .mobile-overlay.visible {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  /* --- MAIN CONTENT — full width + 16px bottom padding --- */
+  .main-content,
+  [class*="main-content"],
+  #main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding-bottom: 16px !important;
+  }
+
+  /* --- MOBILE HEADER ELEMENT TOGGLES --- */
+  #mobile-menu-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: none !important;
+    border: none !important;
+    color: var(--text-primary) !important;
+    font-size: 24px !important;
+    cursor: pointer;
+    padding: 0 !important;
+    width: auto !important;
+    height: auto !important;
+  }
+
+  .mobile-brand-logo {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    color: var(--text-primary);
+    margin-right: auto !important;
+  }
+
+  .top-bar .welcome-text {
+    display: none !important;
+  }
+
+  /* --- HEADER / NAVBAR --- */
+  header,
+  .header,
+  [class*="header"],
+  .navbar,
+  [class*="navbar"] {
+    padding: 8px 12px !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+  }
+
+  /* Shrink Explore Workstation button on mobile */
+  .header button,
+  header button,
+  .explore-btn,
+  [class*="explore"] {
+    font-size: 11px !important;
+    padding: 6px 10px !important;
+    white-space: nowrap !important;
+  }
+
+  /* --- CO2 COUNTER — stack vertically --- */
+  .co2-counter,
+  [class*="co2-counter"],
+  [class*="emissions-counter"],
+  [class*="counter-grid"] {
+    flex-direction: column !important;
+    gap: 4px !important;
+  }
+
+  /* --- HERO SECTION --- */
+  .hero,
+  [class*="hero"],
+  .landing,
+  [class*="landing"] {
+    padding: 16px 16px 24px !important;
+    text-align: center !important;
+  }
+
+  .hero h1,
+  [class*="hero"] h1,
+  h1 {
+    font-size: clamp(1.8rem, 9vw, 3rem) !important;
+    line-height: 1.1 !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+
+  /* --- STATS ROW (4 counters) — 2x2 grid --- */
+  .stats-row,
+  [class*="stats-row"],
+  [class*="stats-grid"],
+  [class*="metrics-row"] {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* --- WORKSTATION GRID — single column --- */
+  .workstation-grid,
+  [class*="workstation-grid"],
+  [class*="dashboard-grid"],
+  .grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* --- AUDIT OPTION CARDS — single column --- */
+  .fuel-options,
+  .residence-options,
+  .diet-options,
+  .option-grid,
+  [class*="option-grid"],
+  [class*="fuel-options"],
+  [class*="choice-grid"],
+  [class*="selector-grid"] {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* --- AUDIT CARD PADDING --- */
+  .audit-card,
+  .question-card,
+  [class*="audit-card"],
+  [class*="question-card"] {
+    padding: 16px !important;
+    margin: 8px !important;
+    width: calc(100% - 16px) !important;
+  }
+
+  /* --- PASSPORT CARD — scale to fit --- */
+  #passport,
+  canvas#passport,
+  [id*="passport"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16/9 !important;
+  }
+
+  /* --- TONNAGE BAR — prevent overflow --- */
+  [class*="tonnage"],
+  [class*="benchmark-bar"],
+  [class*="comparison-bar"] {
+    overflow-x: auto !important;
+    padding-bottom: 8px !important;
+  }
+
+  /* --- WHAT-IF SANDBOX --- */
+  [class*="sandbox"],
+  [class*="what-if"],
+  .offset-grid,
+  [class*="offset-grid"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* --- BUTTONS — full width on mobile --- */
+  .btn-row,
+  [class*="btn-row"],
+  [class*="action-row"],
+  [class*="cta-row"] {
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .btn-row button,
+  [class*="cta"] button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* --- GENERAL OVERFLOW PROTECTION --- */
+  section,
+  .section,
+  [class*="section"],
+  .card,
+  [class*="card"],
+  .panel,
+  [class*="panel"] {
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+
+  /* --- TYPOGRAPHY SCALE DOWN --- */
+  p, span, label {
+    font-size: clamp(12px, 3.5vw, 14px) !important;
+  }
+
+  input, select, textarea {
+    font-size: 16px !important; /* prevents iOS zoom on focus */
+    width: 100% !important;
+  }
+}
+
+/* ============================================
+   EXTRA SMALL — 320px
+   ============================================ */
+@media (max-width: 360px) {
+
+  h1 {
+    font-size: clamp(1.5rem, 8vw, 2.2rem) !important;
+  }
+
+  .header button,
+  header button {
+    font-size: 10px !important;
+    padding: 5px 8px !important;
+  }
+
+  /* Stack CO2 counter labels too */
+  [class*="counter"] .label,
+  [class*="counter"] small {
+    font-size: 9px !important;
   }
 }
 
