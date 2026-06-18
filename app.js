@@ -186,8 +186,8 @@ function initTabs() {
         activeView.setAttribute('tabindex', '0');
         activeView.focus();
         
-        // Redraw components (like Climate Passport canvas) to match the visible layout dimensions
-        updateUI();
+        // Defer UI update so browser style recalculation and layout are completed first
+        setTimeout(updateUI, 50);
       }
     });
   });
@@ -2773,7 +2773,9 @@ function initNameCustomizer() {
 function resizeCanvas(canvas) {
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
-  const width = rect.width || 560;
+  
+  // If canvas is hidden or has a collapsed layout width, use baseline resolution of 560px
+  const width = (rect.width > 100) ? rect.width : 560;
   const height = width * (315 / 560);
   
   // Set physical resolution attributes
