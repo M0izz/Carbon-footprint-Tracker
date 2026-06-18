@@ -12,6 +12,7 @@ import { generateChatbotResponse, getContextualInsight } from './assistant.js';
 // --- STATE MANAGEMENT ---
 let state = {
   theme: 'dark',
+  username: 'Climate Citizen',
   footprint: { transportation: 0, energy: 0, diet: 0, consumption: 0, total: 0 },
   loggedActions: [], // Today's checklist actions
   customLogs: [],    // Today's custom logged actions
@@ -68,6 +69,7 @@ function loadFromStorage() {
       const parsed = JSON.parse(data);
       // Deep merge parsed details to state
       state = { ...state, ...parsed };
+      state.username = parsed.username || state.username || 'Climate Citizen';
       state.footprint = parsed.footprint || state.footprint;
       state.calculatorInputs = parsed.calculatorInputs || state.calculatorInputs;
       state.loggedActions = parsed.loggedActions || [];
@@ -119,6 +121,13 @@ function toggleWorkspaceMode(enterWorkspace) {
     setTimeout(() => {
       mainDashboard.classList.add('active');
       updateUI();
+      
+      // If name is default placeholder, show custom name modal
+      if (!state.username || state.username === 'Climate Citizen') {
+        setTimeout(() => {
+          showNameModal();
+        }, 300);
+      }
     }, 50);
   } else {
     document.body.style.overflow = '';
@@ -747,6 +756,49 @@ function renderAchievements() {
 
 // --- GENERAL UI RENDER REFRESH ---
 function updateUI() {
+  // Update user display greeting with edit prompt handler
+  const userGreeting = document.getElementById('user-greeting');
+  if (userGreeting) {
+    userGreeting.innerHTML = `Welcome, <span id="user-display-name" style="border-bottom: 1px dashed var(--accent); cursor: pointer;" title="Click to edit name">${escapeHTML(state.username || 'Climate Citizen')}</span>`;
+    
+    const nameSpan = document.getElementById('user-display-name');
+    if (nameSpan && !nameSpan.dataset.bound) {
+      nameSpan.dataset.bound = 'true';
+      nameSpan.addEventListener('click', () => {
+        showNameModal();
+      });
+    }
+  }
+
+  // Update name inputs across landing page, calculator, and modal to keep them in sync
+  const nameInputs = ['hero-name-input', 'audit-name-input', 'modal-name-input'];
+  nameInputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      const displayVal = state.username && state.username !== 'Climate Citizen' ? state.username : '';
+      if (el.value !== displayVal) el.value = displayVal;
+    }
+  });
+
+  // Update browser window tab title
+  document.title = !state.username || state.username === 'Climate Citizen'
+    ? 'EcoSphere | Your Climate Footprint, Reimagined'
+    : `${state.username}'s Climate Pathway`;
+
+  // Update passport page header title
+  const passportPageTitle = document.getElementById('passport-page-title');
+  if (passportPageTitle) {
+    passportPageTitle.textContent = !state.username || state.username === 'Climate Citizen' 
+      ? 'Climate Passport' 
+      : `${state.username}'s Climate Passport`;
+  }
+
+  // Update EcoSphera welcome message in chatbot window
+  const chatWelcomeBubble = document.querySelector('#chat-messages .chat-bubble.bot .bubble-content');
+  if (chatWelcomeBubble) {
+    chatWelcomeBubble.innerHTML = `Greetings, <strong>${escapeHTML(state.username || 'Climate Citizen')}</strong>! I am <strong>EcoSphera</strong>, your smart climate coordinator. Ask me questions about saving carbon, or tap a quick prompt below to start.`;
+  }
+
   // Update Header EcoPoints
   const ptsEl = document.getElementById('eco-points');
   if (ptsEl) ptsEl.textContent = state.ecoPoints;
@@ -1295,9 +1347,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initCyberLoader();
   initPremiumTitleAnimations();
 
-  // --- Initialize Region Selector, Carbon Clock & Simulation Sandbox ---
+  // --- Initialize Region Selector, Carbon Clock, Name Customizer & Simulation Sandbox ---
   initRegionSelector();
   initCarbonClock();
+  initNameCustomizer();
   initSimulationListeners();
 
   // --- Bind Passport Page Click Events to Download Passport ---
@@ -1312,6 +1365,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const passportPageDownloadBtn = document.getElementById('btn-passport-page-download');
   if (passportPageDownloadBtn) {
     passportPageDownloadBtn.addEventListener('click', exportCarbonPassport);
+  }
+  const shareTwitterBtn = document.getElementById('btn-passport-share-twitter');
+  if (shareTwitterBtn) {
+    shareTwitterBtn.addEventListener('click', shareOnTwitter);
   }
 });
 
@@ -2052,11 +2109,14 @@ function exportCarbonPassport() {
   ctx.textAlign = 'left';
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 12px monospace';
-  ctx.fillText('CLIMATE PASSPORT', 25, 68);
+  const passportTitle = (!state.username || state.username === 'Climate Citizen')
+    ? 'CLIMATE PASSPORT'
+    : `${state.username.toUpperCase()}'S CLIMATE PASSPORT`;
+  ctx.fillText(passportTitle, 25, 68);
 
   ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
   ctx.font = '9px monospace';
-  ctx.fillText('CLIMATE CITIZEN', 25, 84);
+  ctx.fillText((state.username || 'CLIMATE CITIZEN').toUpperCase(), 25, 84);
 
   // 3. Large Score Display
   ctx.fillStyle = '#ffffff';
@@ -2203,6 +2263,10 @@ function syncRegionUI(region) {
   const elecTip = document.getElementById('electricity-tip');
   if (elecTip) {
     elecTip.textContent = `Typical average is around ${factors.currency}${factors.avgElectricityBill.toLocaleString()} depending on region.`;
+  }
+  const gasTip = document.getElementById('gas-tip');
+  if (gasTip) {
+    gasTip.textContent = `Typical average is around ${factors.currency}${factors.avgGasBill.toLocaleString()} depending on region.`;
   }
 }
 
@@ -2423,11 +2487,14 @@ function updatePagePassport() {
   ctx.textAlign = 'left';
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 12px monospace';
-  ctx.fillText('CLIMATE PASSPORT', 25, 68);
+  const passportTitle = (!state.username || state.username === 'Climate Citizen')
+    ? 'CLIMATE PASSPORT'
+    : `${state.username.toUpperCase()}'S CLIMATE PASSPORT`;
+  ctx.fillText(passportTitle, 25, 68);
 
   ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
   ctx.font = '9px monospace';
-  ctx.fillText('CLIMATE CITIZEN', 25, 84);
+  ctx.fillText((state.username || 'CLIMATE CITIZEN').toUpperCase(), 25, 84);
 
   // 3. Large Score Display
   ctx.fillStyle = '#ffffff';
@@ -2537,5 +2604,81 @@ function updatePagePassport() {
   ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
   ctx.font = '8px monospace';
   ctx.fillText(footerText, canvas.width - 25, 296);
+}
+
+function shareOnTwitter() {
+  const score = state.footprint.total;
+  const diffPercent = ((score - 4.7) / 4.7) * 100;
+  const benchmarkText = score === 0 
+    ? 'Calculated with EcoSphere' 
+    : (diffPercent > 0 ? `${Math.round(diffPercent)}% above the global average` : `${Math.abs(Math.round(diffPercent))}% below the global average`);
+  
+  const text = `My carbon footprint is ${score.toFixed(1)}t CO₂e/yr — ${benchmarkText}. Calculated with EcoSphere: ${window.location.origin + window.location.pathname} #CarbonFootprint #ClimateAction`;
+  const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+  window.open(shareUrl, '_blank');
+}
+
+function showNameModal() {
+  const nameModal = document.getElementById('eco-name-modal');
+  const nameInput = document.getElementById('modal-name-input');
+  if (!nameModal) return;
+  
+  if (nameInput) {
+    nameInput.value = state.username && state.username !== 'Climate Citizen' ? state.username : '';
+  }
+  
+  nameModal.classList.remove('hidden');
+  
+  // Force focus to input
+  setTimeout(() => {
+    if (nameInput) nameInput.focus();
+  }, 100);
+}
+
+function initNameCustomizer() {
+  const heroNameInput = document.getElementById('hero-name-input');
+  const auditNameInput = document.getElementById('audit-name-input');
+  const modalNameInput = document.getElementById('modal-name-input');
+  const nameSaveBtn = document.getElementById('btn-name-modal-save');
+  const nameSkipBtn = document.getElementById('btn-name-modal-skip');
+  const nameModal = document.getElementById('eco-name-modal');
+
+  const updateUsername = (name) => {
+    state.username = name.trim() || 'Climate Citizen';
+    saveToStorage();
+    updateUI();
+  };
+
+  if (heroNameInput) {
+    heroNameInput.addEventListener('input', (e) => {
+      updateUsername(e.target.value);
+    });
+  }
+
+  if (auditNameInput) {
+    auditNameInput.addEventListener('input', (e) => {
+      updateUsername(e.target.value);
+    });
+  }
+
+  if (modalNameInput && nameSaveBtn && nameModal) {
+    nameSaveBtn.addEventListener('click', () => {
+      updateUsername(modalNameInput.value);
+      nameModal.classList.add('hidden');
+    });
+
+    modalNameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        nameSaveBtn.click();
+      }
+    });
+  }
+
+  if (nameSkipBtn && nameModal) {
+    nameSkipBtn.addEventListener('click', () => {
+      updateUsername('Climate Citizen');
+      nameModal.classList.add('hidden');
+    });
+  }
 }
 

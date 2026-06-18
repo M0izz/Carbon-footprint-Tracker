@@ -109,8 +109,8 @@
               <span class="clock-unit-label">tons</span>
             </div>
             <div class="clock-section separator">
-              <span class="clock-sublabel">SINCE YOU VISITED:</span>
-              <span class="clock-number highlight" id="global-co2-visit">0.00</span>
+              <span class="clock-sublabel">SINCE YOU OPENED THIS TAB:</span>
+              <span class="clock-number highlight" id="global-co2-visit">0</span>
               <span class="clock-unit-label">tons</span>
             </div>
           </div>
@@ -119,6 +119,12 @@
         <span class="hero-pretitle">Interactive Climate Pathway</span>
         <h1 class="hero-title smooth-reveal" id="scramble-hero-title">YOUR CLIMATE PATHWAY, <span class="text-gradient">REIMAGINED</span></h1>
         <p class="hero-desc">Every individual choice ripples outward. Map your lifestyle's ecological pressure footprint, log your daily reductions, and discover personalized pathways guided by our climate assistant.</p>
+        <div class="hero-name-container" style="margin-top: 24px; margin-bottom: 16px; width: 100%; max-width: 360px;">
+          <div class="hero-name-input-wrapper" style="display: flex; flex-direction: column; gap: 8px; position: relative;">
+            <label for="hero-name-input" style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-secondary); font-weight: 700; text-align: left;">Your Name</label>
+            <input type="text" id="hero-name-input" placeholder="Enter name to personalize passport..." class="form-control" style="width: 100%; padding: 12px 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: var(--font-body); font-size: 14px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); transition: all 0.2s;" autocomplete="name" />
+          </div>
+        </div>
         <div class="hero-actions-row">
           <button class="btn btn-emerald btn-large" id="btn-hero-calc">
             Start Footprint Audit <i data-lucide="arrow-right"></i>
@@ -553,6 +559,10 @@
               <!-- QUESTION 1: Car Mileage -->
               <div class="question-panel active" data-question="1" data-category="Transportation" data-icon="car">
                 <span class="category-badge"><i data-lucide="car"></i> Transportation</span>
+                <div class="audit-name-container" style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px dashed var(--border-color); display: flex; flex-direction: column; gap: 8px;">
+                  <label for="audit-name-input" style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-secondary); font-weight: 700; text-align: left;">Your Name</label>
+                  <input type="text" id="audit-name-input" placeholder="Enter your name to personalize..." class="form-control" style="max-width: 320px; padding: 10px 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: var(--font-body); font-size: 14px;" autocomplete="name" />
+                </div>
                 <h4>How many miles do you drive your car annually?</h4>
                 <p class="question-desc">Fuel emissions shape a massive percentage of personal greenhouse gases.</p>
                 <div class="input-wrapper">
@@ -673,6 +683,7 @@
                   <span class="input-prefix" id="gas-prefix">₹</span>
                   <input type="number" id="input-gas" min="0" value="500" class="form-control large-input" aria-describedby="gas-tip">
                   <span class="input-unit">/ month</span>
+                  <span class="form-tip" id="gas-tip">Typical average is around ₹500 depending on region.</span>
                 </div>
               </div>
 
@@ -998,12 +1009,17 @@
         <section class="app-view" id="view-passport" role="tabpanel" aria-labelledby="tab-passport" tabindex="0">
           <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
             <div>
-              <h3>Climate Passport</h3>
+              <h3 id="passport-page-title">Climate Passport</h3>
               <p class="section-desc">Your verified carbon credential card. Click to download a high-resolution copy for social sharing.</p>
             </div>
-            <button class="btn btn-emerald" id="btn-passport-page-download" aria-label="Download passport card as image">
-              <i data-lucide="download"></i> Download Passport PNG
-            </button>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <button class="btn btn-emerald" id="btn-passport-page-download" aria-label="Download passport card as image">
+                <i data-lucide="download"></i> Download Passport PNG
+              </button>
+              <button class="btn btn-secondary" id="btn-passport-share-twitter" aria-label="Share carbon footprint on Twitter/X">
+                <i data-lucide="twitter"></i> Share on X
+              </button>
+            </div>
           </div>
 
           <div class="passport-view-container">
@@ -1153,6 +1169,21 @@
       <div class="modal-buttons">
         <button class="btn btn-secondary" id="btn-modal-cancel">Cancel</button>
         <button class="btn btn-emerald" id="btn-modal-confirm">Confirm Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOM NAME ENTRY MODAL -->
+  <div class="custom-modal hidden" id="eco-name-modal" role="dialog" aria-modal="true" aria-labelledby="name-modal-title">
+    <div class="modal-card">
+      <h4 id="name-modal-title">Personalize Your Climate Passport</h4>
+      <p>Enter your name to personalize your Climate Passport card, workspace greetings, and EcoSphera interactions.</p>
+      <div style="display: flex; flex-direction: column; gap: 8px; margin: 4px 0 12px 0;">
+        <input type="text" id="modal-name-input" class="form-control" style="background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; color: var(--text-primary); font-family: var(--font-body); width: 100%; font-size: 14px; transition: border-color 0.2s;" placeholder="Enter your name...">
+      </div>
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" id="btn-name-modal-skip">Use Default</button>
+        <button class="btn btn-emerald" id="btn-name-modal-save">Save & Continue</button>
       </div>
     </div>
   </div>
