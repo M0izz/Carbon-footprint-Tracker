@@ -185,6 +185,9 @@ function initTabs() {
         activeView.classList.add('active');
         activeView.setAttribute('tabindex', '0');
         activeView.focus();
+        
+        // Redraw components (like Climate Passport canvas) to match the visible layout dimensions
+        updateUI();
       }
     });
   });
@@ -2461,7 +2464,10 @@ function updateSimulation() {
   const simTotalEl = document.getElementById('sim-total-footprint');
   const simSavingsEl = document.getElementById('sim-footprint-savings');
   
-  if (state.footprint.total === 0) {
+  // Use current profile footprint if set, otherwise use current form inputs as baseline
+  const baselineTotal = state.footprint.total > 0 ? state.footprint.total : calculateFootprint(state.calculatorInputs).total;
+  
+  if (baselineTotal === 0) {
     if (simTotalEl) simTotalEl.textContent = '--t';
     if (simSavingsEl) simSavingsEl.textContent = '--t (0%)';
     return;
@@ -2469,11 +2475,15 @@ function updateSimulation() {
   
   if (simTotalEl) simTotalEl.textContent = `${simFootprint.total.toFixed(1)}t`;
   
-  const saved = state.footprint.total - simFootprint.total;
-  const savedPercent = state.footprint.total > 0 ? (saved / state.footprint.total) * 100 : 0;
+  const saved = baselineTotal - simFootprint.total;
+  const savedPercent = baselineTotal > 0 ? (saved / baselineTotal) * 100 : 0;
   
   if (simSavingsEl) {
-    simSavingsEl.textContent = `${saved.toFixed(1)}t (${Math.round(savedPercent)}% saved)`;
+    if (saved <= 0) {
+      simSavingsEl.textContent = '0.0t (0% saved)';
+    } else {
+      simSavingsEl.textContent = `${saved.toFixed(1)}t (${Math.round(savedPercent)}% saved)`;
+    }
   }
   
   // Morph donut chart real-time if any simulation checkbox is checked
@@ -2481,7 +2491,7 @@ function updateSimulation() {
   if (isAnySimActive) {
     updateDonutChart(simFootprint);
   } else {
-    updateDonutChart(state.footprint);
+    updateDonutChart(state.footprint.total > 0 ? state.footprint : calculateFootprint(state.calculatorInputs));
   }
 }
 
