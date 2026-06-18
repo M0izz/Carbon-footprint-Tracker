@@ -3004,16 +3004,20 @@ canvas {
   .btn-row,
   [class*="btn-row"],
   [class*="action-row"],
-  [class*="cta-row"] {
+  [class*="cta-row"],
+  .calc-nav-buttons {
     flex-direction: column !important;
     gap: 8px !important;
     width: 100% !important;
   }
 
   .btn-row button,
-  [class*="cta"] button {
+  [class*="cta"] button,
+  .calc-nav-buttons button,
+  .calc-nav-buttons .btn {
     width: 100% !important;
     justify-content: center !important;
+    margin: 0 !important;
   }
 
   /* --- GENERAL OVERFLOW PROTECTION --- */
