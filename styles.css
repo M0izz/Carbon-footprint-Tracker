@@ -1597,23 +1597,134 @@ label {
 }
 
 @media (max-width: 768px) {
-  .hero-title { font-size: 40px; letter-spacing: -1px; }
+  .hero-title {
+    font-size: clamp(28px, 8vw, 48px) !important;
+    letter-spacing: -1px;
+  }
   .landing-header { padding: 20px 24px; }
   .scroll-showcase { padding: 60px 24px; }
-  .stats-ticker-strip { gap: 24px; flex-wrap: wrap; padding: 16px 20px; }
+  
+  .stats-ticker-strip {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 16px !important;
+    padding: 16px 20px !important;
+  }
   .stat-ticker-value { font-size: 28px; }
+  
   .view-viewport { padding: 20px; }
   .dashboard-grid { grid-template-columns: 1fr; }
   .logger-layout { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
   .form-group.full-width { grid-column: span 1; }
+  
   .assistant-chat-panel {
     width: calc(100% - 40px);
     right: 20px;
     left: 20px;
-    bottom: 96px;
+    bottom: 80px; /* shift up to clear the bottom navigation bar */
+    z-index: 10002;
   }
   .landing-footer { flex-direction: column; gap: 12px; text-align: center; }
+
+  /* 1. Sidebar to Bottom Tab Bar on Mobile */
+  .app-container {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr !important;
+    height: 100vh !important;
+    overflow: hidden !important;
+  }
+  .sidebar {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    height: 64px !important;
+    flex-direction: row !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    border-top: 1px solid var(--border-color) !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    z-index: 10000 !important;
+    padding: 0 16px !important;
+    background: rgba(10, 10, 10, 0.95) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    overflow: hidden !important;
+  }
+  .sidebar .brand,
+  .sidebar .sidebar-stats-card,
+  .sidebar .btn-back-landing {
+    display: none !important;
+  }
+  .sidebar .nav-menu {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  .sidebar #main-tabs {
+    flex-direction: row !important;
+    justify-content: space-around !important;
+    width: 100% !important;
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .sidebar .nav-item {
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    padding: 8px !important;
+    width: auto !important;
+    background: none !important;
+    border: none !important;
+  }
+  .sidebar .nav-item span {
+    display: none !important; /* Hide labels for icon-only mobile navigation */
+  }
+  .sidebar .nav-item i {
+    font-size: 20px !important;
+    margin: 0 !important;
+  }
+
+  /* 2. Main content area space adjustments for bottom tab bar */
+  .main-content {
+    margin-left: 0 !important;
+    padding-bottom: 80px !important;
+    height: calc(100vh - 64px) !important;
+    overflow-y: auto !important;
+    width: 100% !important;
+  }
+  .top-bar {
+    padding: 16px 20px !important;
+  }
+
+  /* 3. Audit Option Cards Stack */
+  .choice-cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* 4. CO2 clock stacks vertically */
+  .clock-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .clock-section.separator {
+    border-left: none !important;
+    padding-left: 0 !important;
+    border-top: 1px solid var(--border-color) !important;
+    padding-top: 12px !important;
+  }
+
+  /* 5. Footprint Leaf Glow Container scaled down */
+  .footprint-glow-container {
+    width: 240px !important;
+    height: 300px !important;
+    margin: 0 auto !important;
+  }
 }
 
 /* ======================================================================

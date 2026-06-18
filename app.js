@@ -1370,6 +1370,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if (shareTwitterBtn) {
     shareTwitterBtn.addEventListener('click', shareOnTwitter);
   }
+
+  // Handle window resizing for passport canvas crispness
+  window.addEventListener('resize', () => {
+    const passportPageCanvas = document.getElementById('passport-page-canvas');
+    if (passportPageCanvas) {
+      updatePagePassport();
+    }
+  });
 });
 
 // ======================================================================
@@ -2431,7 +2439,12 @@ function initSimulationListeners() {
 function updatePagePassport() {
   const canvas = document.getElementById('passport-page-canvas');
   if (!canvas) return;
+  
+  resizeCanvas(canvas);
+  
   const ctx = canvas.getContext('2d');
+  const canvasWidth = 560;
+  const canvasHeight = 315;
   
   // Fill background with rounded corners
   ctx.fillStyle = '#0a0a0a';
@@ -2439,12 +2452,12 @@ function updatePagePassport() {
   const radius = 14;
   ctx.beginPath();
   ctx.moveTo(radius, 0);
-  ctx.lineTo(canvas.width - radius, 0);
-  ctx.quadraticCurveTo(canvas.width, 0, canvas.width, radius);
-  ctx.lineTo(canvas.width, canvas.height - radius);
-  ctx.quadraticCurveTo(canvas.width, canvas.height, canvas.width - radius, canvas.height);
-  ctx.lineTo(radius, canvas.height);
-  ctx.quadraticCurveTo(0, canvas.height, 0, canvas.height - radius);
+  ctx.lineTo(canvasWidth - radius, 0);
+  ctx.quadraticCurveTo(canvasWidth, 0, canvasWidth, radius);
+  ctx.lineTo(canvasWidth, canvasHeight - radius);
+  ctx.quadraticCurveTo(canvasWidth, canvasHeight, canvasWidth - radius, canvasHeight);
+  ctx.lineTo(radius, canvasHeight);
+  ctx.quadraticCurveTo(0, canvasHeight, 0, canvasHeight - radius);
   ctx.lineTo(0, radius);
   ctx.quadraticCurveTo(0, 0, radius, 0);
   ctx.closePath();
@@ -2481,7 +2494,7 @@ function updatePagePassport() {
   const d = new Date();
   const dateStr = `• ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
   ctx.textAlign = 'right';
-  ctx.fillText(dateStr, canvas.width - 25, 36);
+  ctx.fillText(dateStr, canvasWidth - 25, 36);
 
   // 2. Title Section (Top Left)
   ctx.textAlign = 'left';
@@ -2603,7 +2616,7 @@ function updatePagePassport() {
   ctx.textAlign = 'right';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
   ctx.font = '8px monospace';
-  ctx.fillText(footerText, canvas.width - 25, 296);
+  ctx.fillText(footerText, canvasWidth - 25, 296);
 }
 
 function shareOnTwitter() {
@@ -2680,5 +2693,19 @@ function initNameCustomizer() {
       nameModal.classList.add('hidden');
     });
   }
+}
+
+function resizeCanvas(canvas) {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const width = rect.width || 560;
+  const height = width * (315 / 560);
+  
+  // Set physical resolution attributes
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr * (width / 560), dpr * (height / 315));
 }
 
