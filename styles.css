@@ -2490,7 +2490,42 @@ input:checked + .slider:before {
     grid-template-columns: 1fr !important; 
     gap: 16px !important;
   }
-  .logger-layout { grid-template-columns: 1fr !important; }
+  /* --- HABIT LOGGER DOCK REDESIGN --- */
+  .logger-layout {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  .logger-layout .card,
+  .streak-card {
+    grid-column: span 1 !important;
+  }
+  .streak-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+  .streak-header > div {
+    width: 100% !important;
+  }
+  .streak-badges-row {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  .streak-counter-badge {
+    font-size: 11px !important;
+    padding: 6px 10px !important;
+  }
+  #streak-dots-timeline {
+    padding: 12px 8px !important;
+    gap: 4px !important;
+  }
+  .form-row {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    margin-bottom: 16px !important;
+  }
   .form-grid { grid-template-columns: 1fr !important; }
   .form-group.full-width { grid-column: span 1 !important; }
   
