@@ -1809,14 +1809,8 @@ function initGridFootprint() {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
-  const dpr = window.devicePixelRatio || 1;
-  let rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  ctx.scale(dpr, dpr);
-
-  let width = rect.width;
-  let height = rect.height;
+  const width = canvas.width;  // 220
+  const height = canvas.height; // 280
 
   // Define symmetrical eco-leaf outline path using original 220x280 coordinates
   const leafPath = new Path2D();
@@ -1827,16 +1821,6 @@ function initGridFootprint() {
   leafPath.bezierCurveTo(cx - 75, 190, cx - 75, 85, cx, 45);
   leafPath.bezierCurveTo(cx + 75, 85, cx + 75, 190, cx, 240);
   leafPath.closePath();
-
-  window.addEventListener('resize', () => {
-    if (canvas.offsetWidth === 0) return;
-    rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
-    width = rect.width;
-    height = rect.height;
-  });
 
   function renderGrid() {
     ctx.clearRect(0, 0, width, height);
@@ -1856,7 +1840,7 @@ function initGridFootprint() {
         const centerX = x + cellSize / 2;
         const centerY = y + cellSize / 2;
         
-        const isLeaf = ctx.isPointInPath(leafPath, centerX * dpr, centerY * dpr);
+        const isLeaf = ctx.isPointInPath(leafPath, centerX, centerY);
         
         if (isLeaf) {
           // Check if this cell is on a vein
