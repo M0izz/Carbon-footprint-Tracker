@@ -3063,6 +3063,17 @@ canvas {
     transform: translateX(-50%) !important;
     margin: 0 !important;
   }
+
+  /* --- EQUIVALENCIES GRID RESPONSIVENESS --- */
+  .equivalencies-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    margin-top: 20px !important;
+  }
+  .equiv-item {
+    width: 100% !important;
+    padding: 12px 16px !important;
+  }
 }
 
 /* ============================================
