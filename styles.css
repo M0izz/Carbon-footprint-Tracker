@@ -3099,5 +3099,14 @@ canvas {
   }
 }
 
+@media (max-width: 768px) {
+  .app-view {
+    display: none !important;
+  }
+  .app-view.active {
+    display: block !important;
+  }
+}
+
 
 
