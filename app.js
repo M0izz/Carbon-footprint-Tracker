@@ -2772,13 +2772,21 @@ function initNameCustomizer() {
 
 function resizeCanvas(canvas) {
   const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
+  const container = canvas.parentElement;
   
-  // If canvas is hidden or has a collapsed layout width, use baseline resolution of 560px
-  const width = (rect.width > 100) ? rect.width : 560;
-  const height = width * (315 / 560);
+  // Get parent container width, fallback to canvas's rect width or 560px
+  let width = container ? container.clientWidth : canvas.getBoundingClientRect().width;
+  if (width < 100) {
+    width = 560;
+  }
+  const aspectRatio = 315 / 560;
+  const height = width * aspectRatio;
   
-  // Set physical resolution attributes
+  // Set style dimensions dynamically based on container
+  canvas.style.width = width + 'px';
+  canvas.style.height = height + 'px';
+  
+  // Set physical canvas attributes for crisp rendering
   canvas.width = width * dpr;
   canvas.height = height * dpr;
   
