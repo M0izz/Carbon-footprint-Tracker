@@ -3102,9 +3102,22 @@ canvas {
 @media (max-width: 768px) {
   .app-view {
     display: none !important;
+    height: auto !important;
+    min-height: 0 !important;
   }
   .app-view.active {
     display: block !important;
+  }
+  
+  .app-view > * {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  
+  #view-dashboard.active {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
   }
 }
 
