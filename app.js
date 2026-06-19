@@ -177,12 +177,14 @@ function initTabs() {
       // Update View Visibility
       document.querySelectorAll('.app-view').forEach(view => {
         view.classList.remove('active');
+        view.classList.add('hidden');
         view.setAttribute('tabindex', '-1');
       });
       
       const activeView = document.getElementById(targetViewId);
       if (activeView) {
         activeView.classList.add('active');
+        activeView.classList.remove('hidden');
         activeView.setAttribute('tabindex', '0');
         activeView.focus();
         
