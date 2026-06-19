@@ -3041,6 +3041,28 @@ canvas {
     font-size: 16px !important; /* prevents iOS zoom on focus */
     width: 100% !important;
   }
+
+  /* --- BENCHMARK TICK & MARKER OVERLAPS --- */
+  .benchmark-tick .tick-label {
+    font-size: 8px !important;
+  }
+  .benchmark-tick .tick-value {
+    font-size: 9px !important;
+  }
+  .benchmark-marker .marker-label {
+    position: absolute !important;
+    bottom: 60px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    margin: 0 !important;
+  }
+  .benchmark-marker .marker-value {
+    position: absolute !important;
+    bottom: 42px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    margin: 0 !important;
+  }
 }
 
 /* ============================================

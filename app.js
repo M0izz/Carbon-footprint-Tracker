@@ -1413,12 +1413,13 @@ document.addEventListener('DOMContentLoaded', () => {
     shareTwitterBtn.addEventListener('click', shareOnTwitter);
   }
 
-  // Handle window resizing for passport canvas crispness
+  // Handle window resizing for passport canvas crispness and dashboard updates
   window.addEventListener('resize', () => {
     const passportPageCanvas = document.getElementById('passport-page-canvas');
     if (passportPageCanvas) {
       updatePagePassport();
     }
+    updateDashboardEquivalencies(state.footprint.total);
   });
 });
 
@@ -2075,6 +2076,44 @@ function updateDashboardEquivalencies(totalFootprint) {
   const percent = Math.min(100, Math.max(3, (totalFootprint / 12) * 100));
   userMarker.style.left = `${percent}%`;
   userVal.textContent = `${totalFootprint.toFixed(1)}t`;
+
+  // Update benchmark tick labels dynamically based on screen width and region
+  const tickParisLabel = document.querySelector('#tick-paris .tick-label');
+  const tickGlobalLabel = document.querySelector('#tick-global .tick-label');
+  const nationalLabel = document.getElementById('national-label');
+  const nationalVal = document.getElementById('national-value');
+
+  const isMobile = window.innerWidth <= 768;
+
+  if (tickParisLabel) {
+    tickParisLabel.textContent = isMobile ? 'Paris' : 'Paris Target';
+  }
+  if (tickGlobalLabel) {
+    tickGlobalLabel.textContent = isMobile ? 'Global' : 'Global Avg';
+  }
+
+  if (nationalLabel && nationalVal) {
+    const region = (state && state.calculatorInputs && state.calculatorInputs.region) || 'IN';
+    const regionNames = isMobile ? {
+      'US': 'US',
+      'IN': 'India',
+      'UK': 'UK',
+      'EU': 'EU'
+    } : {
+      'US': 'US Avg',
+      'IN': 'India Avg',
+      'UK': 'UK Avg',
+      'EU': 'EU Avg'
+    };
+    const regionalValues = {
+      'US': '14.4t',
+      'IN': '1.9t',
+      'UK': '5.5t',
+      'EU': '6.4t'
+    };
+    nationalLabel.textContent = regionNames[region] || (isMobile ? 'India' : 'India Avg');
+    nationalVal.textContent = regionalValues[region] || '1.9t';
+  }
 
   // Update Offset Calculator panel
   const offsetScoreHighlight = document.getElementById('offset-score-highlight');
